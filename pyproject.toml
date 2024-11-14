@@ -1,0 +1,32 @@
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "survival_of_notability"
+version = "0.0.1"
+description = "Web communities depend on open forums for tasks like governance, information sharing, and decision-making, but these can yield biased outcomes. In Wikipedia's Articles for Deletion (AfD) discussions, biographies of women face faster deletion nominations, longer consensus times, and are more often redirected or merged into men\u2019s biographies, highlighting gender asymmetries. Our study employs a competing risk survival framework to illuminate AfD\u2019s role in Wikipedia\u2019s gender gap, offering insights for open knowledge governance."
+authors = [
+  { name = "Khandaker Tasnim Huq, Giovanni Luca Ciampaglia" },
+]
+license = { file = "LICENSE" }
+readme = "README.md"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License"
+]
+requires-python = "~=3.10"
+
+[tool.black]
+line-length = 99
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.venv
+)/
+'''
+
+[tool.ruff.lint.isort]
+known_first_party = ["survival_of_notability"]
+force_sort_within_sections = true
