@@ -10,17 +10,17 @@ Web communities depend on open forums for tasks like governance, information sha
 1. clone the project
 
 2. Create requirment.txt file
-
+```
     make create_requirement
-
+```
 3. Then create virtual environment
-
+```
     make create_environment
-
+```
 4. Then prepare dataset
-
+```
     make data
-
+```
 
 
 
