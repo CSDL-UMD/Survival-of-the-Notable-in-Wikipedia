@@ -6,6 +6,26 @@
 
 Web communities depend on open forums for tasks like governance, information sharing, and decision-making, but these can yield biased outcomes. In Wikipedia's Articles for Deletion (AfD) discussions, biographies of women face faster deletion nominations, longer consensus times, and are more often redirected or merged into men’s biographies, highlighting gender asymmetries. Our study employs a competing risk survival framework to illuminate AfD’s role in Wikipedia’s gender gap, offering insights for open knowledge governance.
 
+## Steps to follow
+1. clone the project
+
+2. Create requirment.txt file
+
+    make create_requirement
+
+3. Then create virtual environment
+
+    make create_environment
+
+4. Then prepare dataset
+
+    make data
+
+
+
+
+    
+
 ## Project Organization
 
 ```
@@ -58,4 +78,6 @@ Web communities depend on open forums for tasks like governance, information sha
 ```
 
 --------
+
+
 

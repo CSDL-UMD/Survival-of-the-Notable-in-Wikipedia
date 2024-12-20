@@ -3,7 +3,7 @@
 #################################################################################
 
 PROJECT_NAME = Survival_of_Notability
-PYTHON_VERSION = 3.10
+PYTHON_VERSION = 3.8.8
 PYTHON_INTERPRETER = python
 
 #################################################################################
@@ -14,6 +14,7 @@ PYTHON_INTERPRETER = python
 ## Install Python Dependencies
 .PHONY: requirements
 requirements:
+	pip-compile requirements.in
 	$(PYTHON_INTERPRETER) -m pip install -U pip
 	$(PYTHON_INTERPRETER) -m pip install -r requirements.txt
 	
@@ -40,12 +41,19 @@ format:
 
 
 
+## Set up requirment.txt file
+.PHONY: create_requirement
+create_requirement:
+	pip install pip-tools
+	mkdir .myvenv
+	touch Pipfile
 
 ## Set up python interpreter environment
 .PHONY: create_environment
 create_environment:
 	pipenv --python $(PYTHON_VERSION)
 	@echo ">>> New pipenv created. Activate with:\npipenv shell"
+	pipenv shell
 	
 
 
