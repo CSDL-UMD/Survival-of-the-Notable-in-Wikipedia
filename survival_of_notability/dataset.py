@@ -12,6 +12,75 @@ warnings.filterwarnings('ignore')
 
 app = typer.Typer()
 
+def data_part3(part_3,petscan_path):
+    print("Identifying living people...\n")
+    part_3A = part_3[part_3['BLP']==1]
+    part_3A['Alive']=1
+    part_3A['is_Historical']=0
+    part_3B = part_3[part_3['BLP']==0]
+
+    print("Identifying living and historical status based on birth by decades...\n")
+
+    print("collect data with date of birth before 1907...\n")
+    birth_from_begin_till_1st_millenium=pd.read_csv(petscan_path / 'birth_from_begin_till_1st_millenium.csv',on_bad_lines='skip', index_col=False)
+    birth_2nd_millenium_without_20th_century=pd.read_csv(petscan_path / 'birth_2nd_millenium_without_20th_century.csv',on_bad_lines='skip', index_col=False)
+    birth_1900s_without_07_08_09=pd.read_csv(petscan_path / 'birth_1900s_without_07,08,09.csv',on_bad_lines='skip', index_col=False)
+
+
+
+    len(birth_from_begin_till_1st_millenium), len(birth_2nd_millenium_without_20th_century)
+
+    print("collect data with date of birth after 1907...\n")
+    birth_1907_08_09=pd.read_csv(petscan_path / 'birth_1907,08,09.csv',on_bad_lines='skip', index_col=False)
+    birth_20th_century_without_1900s=pd.read_csv(petscan_path / 'birth_20th_century_without_1900s.csv',on_bad_lines='skip', index_col=False)
+    birth_21st_century=pd.read_csv(petscan_path / 'birth_21st-century.csv',on_bad_lines='skip', index_col=False)
+
+
+    historical_people = pd.concat([birth_from_begin_till_1st_millenium,birth_2nd_millenium_without_20th_century,birth_1900s_without_07_08_09])
+
+    contemporary_people = pd.concat([birth_1907_08_09,birth_20th_century_without_1900s,birth_21st_century])
+
+    print("Identifying historical people...\n")
+    part_3B_a=part_3B[part_3B['page_title'].isin(historical_people['title'])]
+    part_3B_a['Alive']=0
+    part_3B_a['is_Historical']=1
+
+    print("Identifying contemporary deceased people...\n")
+    part_3B_b=part_3B[~part_3B['page_title'].isin(historical_people['title'])]
+    part_3B_b_contemporary=part_3B_b[part_3B_b['page_title'].isin(contemporary_people['title'])]
+    dead=pd.read_csv(petscan_path / 'Dead_people_all.csv',on_bad_lines='skip', index_col=False)
+    part_3B_b_contemporary_dead=part_3B_b_contemporary[part_3B_b_contemporary['page_title'].isin(dead['title'])]
+    part_3B_b_contemporary_dead['Alive']=0
+    part_3B_b_contemporary_dead['is_Historical']=0
+
+    print("Identifying data without date of birth and death information...\n")
+    Totally_unlnown_group = pd.concat([part_3B_b[~part_3B_b['page_title'].isin(contemporary_people['title'])],part_3B_b_contemporary[~part_3B_b_contemporary['page_title'].isin(dead['title'])]])
+
+    print("Identifying people deceased before 1907...\n")
+    dead_historical=pd.read_csv(petscan_path / 'Dead_people_historical.csv',on_bad_lines='skip', index_col=False)
+    part_3B_unknown_historical_dead=Totally_unlnown_group[Totally_unlnown_group['page_title'].isin(dead_historical['title'])]
+    part_3B_unknown_historical_dead['Alive']=0
+    part_3B_unknown_historical_dead['is_Historical']=1
+
+
+    part_3_better=pd.concat([part_3A,part_3B_a,part_3B_b_contemporary_dead, part_3B_unknown_historical_dead])
+    not_part_3=part_3[~part_3['page_title'].isin(part_3_better['page_title'])]
+
+    print("Identifying people deceased after 1907...\n")
+    Dead_people_from1900_to1977=pd.read_csv(petscan_path / 'Dead_people_from1900_to1977.csv',on_bad_lines='skip', index_col=False)
+    dead_contemporary_2=dead[~dead['title'].isin(pd.concat([dead_historical,Dead_people_from1900_to1977])['title'])]
+
+    print("Consider the rest of people as alive...\n")
+    probably_alive=not_part_3[~not_part_3['page_title'].isin(dead_contemporary_2['title'])]
+    probably_alive['Alive']=1
+    probably_alive['is_Historical']=0
+
+    part_3_better=pd.concat([part_3_better,probably_alive])
+    print("Done with Part 3!\n")
+
+    return part_3_better
+
+
 def data_part2(part_2,petscan_path):
     logger.info("Part 2: Set up and correct the data, ensuring entries with a birth date but no death date are properly handled...\n")
     print("Removing data with wrong date of birth...\n")
@@ -70,7 +139,7 @@ def data_part1(part_1):
 
     return part_1
 
-def make_data_for_survival_model(petscan_path,output_path_kmf):
+def make_data_for_survival_model(petscan_path,output_path_kmf,output_path_cox_ph):
     print("Loading list of Living People...\n")
     BLP=pd.read_csv(petscan_path / "Living_people.csv", index_col=False)
     BLP=BLP[['title']]
@@ -102,6 +171,26 @@ def make_data_for_survival_model(petscan_path,output_path_kmf):
 
     part_1 = data_part1(part_1)
     part_2 = data_part2(part_2, petscan_path)
+    part_3 = data_part3(part_3,petscan_path)
+
+    print(len(part_1), len(part_2), len(part_3))
+
+    print("Join all the data...\n")
+    all_biographies2_with_data=pd.concat([part_1,part_2])
+    all_biographies2_with_data.loc[all_biographies2_with_data[all_biographies2_with_data['birth']>=1907].index,'is_Historical']=0
+    all_biographies2_with_data.loc[all_biographies2_with_data[all_biographies2_with_data['birth']<1907].index,'is_Historical']=1
+    all_biographies2_with_data=pd.concat([all_biographies2_with_data, part_3]).drop_duplicates(subset='page_title', keep='first')
+
+    all_biographies2_with_data=all_biographies2_with_data.rename(columns={'Female':'Gender'})
+
+    print("Identifying the feature Status for all people: a) Historical, b) Contemporary Dead, c) Contemporary Alive...\n")
+    all_biographies2_with_data=all_biographies2_with_data.rename(columns={'Female':'Gender'})
+    all_biographies2_with_data['Status']=all_biographies2_with_data.apply(lambda row: "Historical" if row['is_Historical']==1 else ("Contemporary Dead" if row['Alive']==0 else "Alive"), axis=1)
+    all_biographies2_with_data['Wikipedia_Age']=all_biographies2_with_data['creation_date_original2'].apply(lambda x: int(str(x)[2:4]))
+    
+    all_biographies2_with_data.to_csv(output_path_cox_ph, index= False)
+    print("Done with all_biographies with Vital Information!")
+
 
 
 def make_all_biography2(input_path,output_path_kmf):
@@ -132,15 +221,16 @@ def main(
     # ---- REPLACE DEFAULT PATHS AS APPROPRIATE ----
     input_path: Path = RAW_DATA_DIR / "all_biographies.csv",
     output_path_kmf: Path = PROCESSED_DATA_DIR / "all_biographies2.csv",
+    output_path_cox_ph: Path = PROCESSED_DATA_DIR / "all_biographies2_with_data.csv",
     petscan_path: Path = EXTERNAL_DATA_DIR 
     # ----------------------------------------------
 ):
     # ---- REPLACE THIS WITH YOUR OWN CODE ----
     logger.info("Processing dataset for Kaplan-Meier estimation...")
-    make_all_biography2(input_path,output_path_kmf)
+    # make_all_biography2(input_path,output_path_kmf)
 
     logger.info("Processing dataset for Cox proportional hazards model...")
-    make_data_for_survival_model(petscan_path,output_path_kmf)
+    make_data_for_survival_model(petscan_path,output_path_kmf,output_path_cox_ph)
     
     logger.success("Processing dataset complete.")
     # -----------------------------------------
