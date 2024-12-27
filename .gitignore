@@ -170,3 +170,5 @@ requirements.txt
 #environment files
 .DS_Store
 Pipfile
+
+*.Rapp.*

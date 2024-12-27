@@ -68,6 +68,16 @@ create_environment:
 data: requirements
 	$(PYTHON_INTERPRETER) survival_of_notability/dataset.py
 
+## Make Retrospective Dataset
+.PHONY: retrospective_data
+retrospective_data:
+	Rscript survival_of_notability/Compete.R
+
+
+## Survival Analysis using R
+.PHONY: compete_risk
+compete_risk:
+	Rscript survival_of_notability/Survival\ Analysis.R
 
 #################################################################################
 # Self Documenting Commands                                                     #

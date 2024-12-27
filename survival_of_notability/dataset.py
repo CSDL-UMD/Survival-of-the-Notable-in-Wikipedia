@@ -3,17 +3,69 @@ from pathlib import Path
 import typer
 from loguru import logger
 from tqdm import tqdm
+from dateutil import parser
+import datetime
 # import tqdm.notebook as nb
 
 
-from config import PROCESSED_DATA_DIR, RAW_DATA_DIR, EXTERNAL_DATA_DIR
+from config import PROCESSED_DATA_DIR, RAW_DATA_DIR, EXTERNAL_DATA_DIR, INTERIM_DATA_DIR
 
 import pandas as pd
 import re
+import os
 import warnings
 warnings.filterwarnings('ignore')
 
 app = typer.Typer()
+
+def convert(date_time):
+    try:
+        return datetime.datetime.strptime(str(date_time), '%Y-%m-%d %H:%M:%S')
+    except ValueError:
+        return datetime.datetime.strptime(str(date_time), '%Y-%m-%d')
+    format = '%Y-%m-%d %H:%M:%S'
+
+def prepare_for_r_code(data_for_compete_risk_all,data_for_r_code):
+    print("Prepare for R code...\n")
+    data_for_compete_risk_all['creation_dates2']=data_for_compete_risk_all['creation_dates'].apply(lambda x: convert(x))
+    data_for_compete_risk_all['nomination_dates2']=data_for_compete_risk_all['nomination_dates'].apply(lambda x: convert(x))  
+
+    print("Data segmentation based on year of creation...\n")
+    dataframe_year=pd.DataFrame()
+    list_of_pf = []
+    iterr =1
+    for year in tqdm(range(2004,2024,1)):
+    #     print(year)
+        create_till=data_for_compete_risk_all[data_for_compete_risk_all['creation_dates2'] <= datetime.datetime(year, 12,31)]
+
+        nominated=create_till[create_till['nomination_dates2'] <= datetime.datetime(year, 12,31)]
+        nominated['event2']=nominated['event']
+        # print(nominated)
+
+        not_nominated=create_till[create_till['nomination_dates2'] > datetime.datetime(year, 12,31)]
+        not_nominated['event2']="not-nominated"
+        conct=pd.concat([nominated,not_nominated])
+        conct['iter']= iterr
+    #     print(conct)
+        iterr +=1
+        list_of_pf.append(conct)  
+    
+    data_for_compete_risk_all_iter=pd.concat(list_of_pf)
+
+
+    print("Saving in the interim folder...\n")
+
+    # Check if the folder exists
+    if not os.path.exists(data_for_r_code):
+        # Create the folder
+        os.makedirs(data_for_r_code)
+        print(f"Folder created: {data_for_r_code}")
+    else:
+        print(f"Folder already exists: {data_for_r_code}")
+
+    for i,g in tqdm(data_for_compete_risk_all_iter.groupby('iter')):
+        file_name_r = 'iter_'+str(i)+'.csv'
+        g.to_csv(data_for_r_code / file_name_r, index=False)
 
 def word_count(str):
     counts = dict()
@@ -123,7 +175,7 @@ def parse_and_clean_outcomes(all_biographies2_with_data,df_features_del, afds_al
     
     return data_for_compete_risk_all
 
-def make_data_for_competing_risk_model(input_path_conv_afd,output_path_cox_ph,output_path_compete):
+def make_data_for_competing_risk_model(input_path_conv_afd,output_path_cox_ph,output_path_compete,data_for_r_code):
     articles = pd.read_csv(input_path_conv_afd, index_col=False)
     print("Extracting the outcome from the conversation...\n")
     articles['page_title']=articles['Entry'].apply(lambda x: str(x).replace(" ","_"))
@@ -137,8 +189,13 @@ def make_data_for_competing_risk_model(input_path_conv_afd,output_path_cox_ph,ou
     df_features_del = extract_feature_for_competing_risk(afds_all,all_biographies2_with_data)
     data_for_compete_risk_all = parse_and_clean_outcomes(all_biographies2_with_data,df_features_del,afds_all)
 
-
     data_for_compete_risk_all.to_csv(output_path_compete, index=False)
+
+    prepare_for_r_code(data_for_compete_risk_all,data_for_r_code)
+
+    
+
+
 
 
 
@@ -355,18 +412,19 @@ def main(
     output_path_kmf: Path = PROCESSED_DATA_DIR / "all_biographies2.csv",
     output_path_cox_ph: Path = PROCESSED_DATA_DIR / "all_biographies2_with_data.csv",
     output_path_compete: Path = PROCESSED_DATA_DIR / "data_for_compete_risk_all.csv",
-    petscan_path: Path = EXTERNAL_DATA_DIR 
+    petscan_path: Path = EXTERNAL_DATA_DIR ,
+    data_for_r_code: Path = INTERIM_DATA_DIR
     # ----------------------------------------------
 ):
     # ---- REPLACE THIS WITH YOUR OWN CODE ----
     logger.info("Processing dataset for Kaplan-Meier estimation...")
-    # make_all_biography2(input_path,output_path_kmf)
+    make_all_biography2(input_path,output_path_kmf)
 
     logger.info("Processing dataset for Cox proportional hazards model...")
-    # make_data_for_survival_model(petscan_path,output_path_kmf,output_path_cox_ph)
+    make_data_for_survival_model(petscan_path,output_path_kmf,output_path_cox_ph)
 
     logger.info("Processing dataset for Competeing Risk model...")
-    make_data_for_competing_risk_model(input_path_conv_afd,output_path_cox_ph,output_path_compete)
+    make_data_for_competing_risk_model(input_path_conv_afd,output_path_cox_ph,output_path_compete,data_for_r_code)
     
     logger.success("Processing dataset complete.")
     # -----------------------------------------

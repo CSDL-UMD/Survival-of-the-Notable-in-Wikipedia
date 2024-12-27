@@ -7,7 +7,7 @@
 Web communities depend on open forums for tasks like governance, information sharing, and decision-making, but these can yield biased outcomes. In Wikipedia's Articles for Deletion (AfD) discussions, biographies of women face faster deletion nominations, longer consensus times, and are more often redirected or merged into men’s biographies, highlighting gender asymmetries. Our study employs a competing risk survival framework to illuminate AfD’s role in Wikipedia’s gender gap, offering insights for open knowledge governance.
 
 ## Steps to follow
-1. clone the project
+1. Clone the project repository.
 
 2. Create requirment.txt file
 ```
@@ -21,6 +21,15 @@ Web communities depend on open forums for tasks like governance, information sha
 ```
     make data
 ```
+5. Then prepare dataset for retrospective analysis
+```
+    make retrospective_data
+```
+6. To explore and visualize the results of the survival analysis, refer to the notebook: Survival Analysis.ipynb
+7. To model competing risk and create visualization
+```
+    make compete_risk
+```
 
 
 
@@ -30,7 +39,7 @@ Web communities depend on open forums for tasks like governance, information sha
 
 ```
 ├── LICENSE            <- Open-source license if one is chosen
-├── Makefile           <- Makefile with convenience commands like `make data` or `make train`
+├── Makefile           <- Makefile with convenience commands like `make data`
 ├── README.md          <- The top-level README for developers using this project.
 ├── data
 │   ├── petscan       <- Data from third party sources "PetScan".
@@ -42,9 +51,7 @@ Web communities depend on open forums for tasks like governance, information sha
 │
 ├── models             <- Trained and serialized models, model predictions, or model summaries
 │
-├── notebooks          <- Jupyter notebooks. Naming convention is a number (for ordering),
-│                         the creator's initials, and a short `-` delimited description, e.g.
-│                         `1.0-jqp-initial-data-exploration`.
+├── Survival Analysis.ipynb          <- Jupyter notebook to data exploration and create visualization.
 │
 ├── pyproject.toml     <- Project configuration file with package metadata for 
 │                         survival_of_notability and configuration for tools like black
@@ -54,8 +61,7 @@ Web communities depend on open forums for tasks like governance, information sha
 ├── reports            <- Generated analysis as HTML, PDF, LaTeX, etc.
 │   └── figures        <- Generated graphics and figures to be used in reporting
 │
-├── requirements.txt   <- The requirements file for reproducing the analysis environment, e.g.
-│                         generated with `pip freeze > requirements.txt`
+├── requirements.in   <- The requirements file for reproducing the analysis environment.
 │
 ├── setup.cfg          <- Configuration file for flake8
 │

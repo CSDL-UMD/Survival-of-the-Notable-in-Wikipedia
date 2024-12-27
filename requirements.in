@@ -8,3 +8,5 @@ python-dotenv
 tqdm
 typer
 pandas
+lifelines
+rpy2
