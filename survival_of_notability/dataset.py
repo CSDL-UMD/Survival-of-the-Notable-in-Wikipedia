@@ -3,14 +3,145 @@ from pathlib import Path
 import typer
 from loguru import logger
 from tqdm import tqdm
+# import tqdm.notebook as nb
+
 
 from config import PROCESSED_DATA_DIR, RAW_DATA_DIR, EXTERNAL_DATA_DIR
 
 import pandas as pd
+import re
 import warnings
 warnings.filterwarnings('ignore')
 
 app = typer.Typer()
+
+def word_count(str):
+    counts = dict()
+    words = str.split()
+
+    for word in words:
+        if word in counts:
+            counts[word] += 1
+        else:
+            counts[word] = 1
+
+    return list(counts.values())
+
+def extract_feature_for_competing_risk(afds_all,all_biographies2_with_data):
+    print("Extracting features for competing risk analysis...\n")
+
+    
+    groups=afds_all.groupby('page_title')
+
+    features_del=[]
+
+    for i,g in tqdm(groups):
+        # print(i)
+
+        target= g.sort_values(by='timestamp')
+        # print((pd.Timestamp(target.iloc[-1]['timestamp'], unit='s')-pd.Timestamp(all_biographies2_with_data[all_biographies2_with_data['page_title']==i]['nomination_dates'].iloc[0])).total_seconds())
+
+        num_users=num_messages=num_words=num_seconds=0
+        try:
+            if len(target)>0:
+                num_users = len(target['user'].unique()) +1
+                num_messages = len(target)+1
+                ave_num_words = (sum(target['rationals'].apply(lambda x: word_count(str(x))).sum())/(num_messages-1))+1
+                num_seconds=(pd.Timestamp(target.iloc[-1]['timestamp'], unit='s')-pd.Timestamp(target.iloc[0]['timestamp'], unit='s')).total_seconds()
+
+                if num_seconds==0:
+                    # print(i[0])
+                    # print(all_biographies2_with_data[all_biographies2_with_data['page_title']==i])
+                    num_seconds=(pd.Timestamp(target.iloc[-1]['timestamp'], unit='s')-pd.Timestamp(all_biographies2_with_data[all_biographies2_with_data['page_title']==i]['nomination_dates'].iloc[0])).total_seconds()
+
+            features_del.append([i, num_seconds,num_users,num_messages,ave_num_words])
+        except:
+            pass
+
+
+
+    df_features_del=pd.DataFrame(features_del,columns=['page_title','num_seconds','num_users','num_messages','ave_num_words'])
+    df_features_del=df_features_del[df_features_del['num_seconds']>0]
+    return df_features_del
+
+
+def parse_and_clean_outcomes(all_biographies2_with_data,df_features_del, afds_all ):
+    print("Organizing all data for competing risk analysis...\n")
+    data_for_compete_risk=all_biographies2_with_data[['QID','page_title','creation_dates', 'nomination_dates','days_before_nomination','nominated','Gender', 'Wikipedia_Age','Status']]
+    data_for_compete_risk['tstart']=0
+    data_for_compete_risk['tstop']=data_for_compete_risk['days_before_nomination']*86400
+    data_for_compete_risk['event']=data_for_compete_risk['nominated'].apply(lambda x:'not nominated' if x==0 else 'nominated')
+    data_for_compete_risk['id']=data_for_compete_risk.index
+    data_for_compete_risk=data_for_compete_risk.drop_duplicates(subset='id', keep='first')
+
+
+    print("Organizing data of nominated afd for competing risk analysis...\n")
+    data_for_compete_risk_nominated=pd.merge(data_for_compete_risk,df_features_del, on='page_title',)[['QID','page_title','creation_dates', 'nomination_dates','days_before_nomination','nominated','Gender', 'Wikipedia_Age','Status','id','num_seconds','num_users','num_messages','ave_num_words']]
+    data_for_compete_risk_nominated=data_for_compete_risk_nominated.drop_duplicates(subset='id', keep='first')
+    data_for_compete_risk_nominated['tstart']=data_for_compete_risk_nominated['days_before_nomination']*86400
+    data_for_compete_risk_nominated['tstop']=data_for_compete_risk_nominated['tstart'] + data_for_compete_risk_nominated['num_seconds']
+    data_for_compete_risk_nominated=pd.merge(data_for_compete_risk_nominated,afds_all[afds_all['action']=='Outcome'][['page_title','recommend']],on='page_title',how='left').drop_duplicates(subset='id', keep='first')
+    data_for_compete_risk_nominated = data_for_compete_risk_nominated.rename(columns={'recommend':'event'})
+    data_for_compete_risk_nominated=data_for_compete_risk_nominated.drop(columns='num_seconds')
+
+    print("Cleaning the text of outcome...\n")
+
+    data_for_compete_risk_nominated['event2']=data_for_compete_risk_nominated['event'].apply(lambda x: str(x).lower().replace("not delete","keep").replace("delete and redirect","redirect").replace("kept","keep")).apply(lambda x: re.search(r"delete|deletion|keep|no consensus|redirect|merge|withdraw|close|speedied|moot|a7|move|inclusion",x).group(0) if bool(re.search(r"delete|deletion|keep|no consensus|redirect|merge|withdraw|close|speedied|moot|a7|move|inclusion",x))==True else x ).apply(lambda x: x.replace("<span style=\"color:red;\">","" ).replace("</span>","").replace("<font color=green>","").replace("</font>","").replace("<font color=red>","").replace("withdraw","keep").replace("kept","keep"))                                                                                
+    data_for_compete_risk_nominated['event2']=data_for_compete_risk_nominated['event2'].apply(lambda x: x.replace("copyvio","delete")
+                                                                                                         .replace("speedied","delete")
+                                                                                                         .replace("speedy","delete")
+                                                                                                         .replace("deletion","delete")
+                                                                                                         .replace("a7","delete")
+                                                                                                         .replace("flagged as ","")
+                                                                                                         .replace("move","keep")
+                                                                                                         .replace("close","keep")
+                                                                                                         .replace("no concensus","no consensus")
+                                                                                                         .replace("no consensus","keep")
+                                                                                                         .replace("moot","keep")
+                                                                                                         .replace("inclusion","keep")
+                                                                                                         .replace("procedural closure","keep")
+                                                                                                         .replace("userfy","keep")
+                                                                                                         .replace("userfied","keep")
+
+                                                                                             )
+
+
+    data_for_compete_risk_nominated=data_for_compete_risk_nominated.drop(columns='event').rename(columns={'event2':'event'})
+
+    print("Organizing most frequent event/outcome...\n")
+    data_for_compete_risk['num_users']=0
+    data_for_compete_risk['num_messages']=0
+    data_for_compete_risk['ave_num_words']=0
+
+    data_for_compete_risk_all= pd.concat([data_for_compete_risk_nominated,data_for_compete_risk[data_for_compete_risk_nominated.columns]]).fillna(0)
+    list_cat=list(data_for_compete_risk_all['event'].value_counts()[:6].index)
+    data_for_compete_risk_all['event']=data_for_compete_risk_all['event'].apply(lambda x: x if x in list_cat else "other")
+    data_for_compete_risk_all['event']=data_for_compete_risk_all['event'].apply(lambda x: x.replace(" ","-"))
+    data_for_compete_risk_all=data_for_compete_risk_all.sort_values(by='id')
+    data_for_compete_risk_all=data_for_compete_risk_all[data_for_compete_risk_all['tstop']!= data_for_compete_risk_all['tstart']]
+    data_for_compete_risk_all=data_for_compete_risk_all[data_for_compete_risk_all['tstop']<=8395*86400].sort_values(by='tstop')
+    
+    return data_for_compete_risk_all
+
+def make_data_for_competing_risk_model(input_path_conv_afd,output_path_cox_ph,output_path_compete):
+    articles = pd.read_csv(input_path_conv_afd, index_col=False)
+    print("Extracting the outcome from the conversation...\n")
+    articles['page_title']=articles['Entry'].apply(lambda x: str(x).replace(" ","_"))
+
+    all_biographies2_with_data = pd.read_csv(output_path_cox_ph, index_col=False)
+    afds=pd.merge(articles[articles['action']=='Outcome'][['page_title','recommend']], all_biographies2_with_data, on='page_title').drop_duplicates(subset='page_title')
+    afds['outcome']=afds['recommend'].apply(lambda y: str(re.findall('delete|keep|merge|redirect|no consensus|d</span>elete|withdrawn|deletion|close|inclusion',str(y).lower(), flags=re.IGNORECASE)).replace("\'","").replace("[","").replace("]",""))
+
+    afds_all=pd.merge(afds[['page_title','outcome']], articles[articles['timestamp']!=-1], on='page_title')
+    afds_all['recommend']=afds_all['recommend'].apply(lambda x: str(x).lower())
+    df_features_del = extract_feature_for_competing_risk(afds_all,all_biographies2_with_data)
+    data_for_compete_risk_all = parse_and_clean_outcomes(all_biographies2_with_data,df_features_del,afds_all)
+
+
+    data_for_compete_risk_all.to_csv(output_path_compete, index=False)
+
+
+
 
 def data_part3(part_3,petscan_path):
     print("Identifying living people...\n")
@@ -220,8 +351,10 @@ def make_all_biography2(input_path,output_path_kmf):
 def main(
     # ---- REPLACE DEFAULT PATHS AS APPROPRIATE ----
     input_path: Path = RAW_DATA_DIR / "all_biographies.csv",
+    input_path_conv_afd = RAW_DATA_DIR / "From_Begin_Afd_Conversation3.csv",
     output_path_kmf: Path = PROCESSED_DATA_DIR / "all_biographies2.csv",
     output_path_cox_ph: Path = PROCESSED_DATA_DIR / "all_biographies2_with_data.csv",
+    output_path_compete: Path = PROCESSED_DATA_DIR / "data_for_compete_risk_all.csv",
     petscan_path: Path = EXTERNAL_DATA_DIR 
     # ----------------------------------------------
 ):
@@ -230,7 +363,10 @@ def main(
     # make_all_biography2(input_path,output_path_kmf)
 
     logger.info("Processing dataset for Cox proportional hazards model...")
-    make_data_for_survival_model(petscan_path,output_path_kmf,output_path_cox_ph)
+    # make_data_for_survival_model(petscan_path,output_path_kmf,output_path_cox_ph)
+
+    logger.info("Processing dataset for Competeing Risk model...")
+    make_data_for_competing_risk_model(input_path_conv_afd,output_path_cox_ph,output_path_compete)
     
     logger.success("Processing dataset complete.")
     # -----------------------------------------
