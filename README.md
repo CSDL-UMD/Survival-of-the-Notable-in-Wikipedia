@@ -38,14 +38,17 @@ Web communities depend on open forums for tasks like governance, information sha
 ## Project Organization
 
 ```
-├── LICENSE            <- Open-source license if one is chosen
+├── LICENSE            <- Open-source license.
 ├── Makefile           <- Makefile with convenience commands like `make data`
 ├── README.md          <- The top-level README for developers using this project.
 ├── data
-│   ├── petscan       <- Data from third party sources "PetScan".
+│   ├── petscan        <- Data from third party sources "PetScan".
 │   ├── interim        <- Intermediate data that has been transformed.
 │   ├── processed      <- The final, canonical data sets for "Survival Analysis" .
 │   └── raw            <- The original, immutable data dump.
+│       ├── Quarry     <- immutable datasets extracted from "Quarry": Biographies with creation dates, Articles from Archive, Articles nominated in Article for Deletion with nomination dates .
+│       └── Wikidata   <- The original, immutable datasets extracted from "Wikidata": data with vital information such as gender, date of birth and date of death .
+│                 
 │
 ├── docs               <- A default mkdocs project; see www.mkdocs.org for details
 │
@@ -73,14 +76,8 @@ Web communities depend on open forums for tasks like governance, information sha
     │
     ├── dataset.py              <- Scripts to download or generate data
     │
-    ├── features.py             <- Code to create features for modeling
-    │
-    ├── modeling                
-    │   ├── __init__.py 
-    │   ├── predict.py          <- Code to run model inference with trained models          
-    │   └── train.py            <- Code to train models
-    │
-    └── plots.py                <- Code to create visualizations
+    └── features.py             <- Code to create features for modeling.
+    
 ```
 
 --------

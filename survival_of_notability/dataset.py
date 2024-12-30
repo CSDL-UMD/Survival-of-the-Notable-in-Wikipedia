@@ -381,10 +381,9 @@ def make_data_for_survival_model(petscan_path,output_path_kmf,output_path_cox_ph
 
 
 
-def make_all_biography2(input_path,output_path_kmf):
+def make_all_biography2(all_biographies,output_path_kmf):
 
     logger.info("Preparation involves filtering the data as follows: a) Retain entries where the creation dates precede the nomination dates. b) Include only data pertaining to subjects identified as male or female.")
-    all_biographies = pd.read_csv(input_path, index_col=False)
     all_biographies=all_biographies[all_biographies['gender']!='no data']
 
 
@@ -404,10 +403,179 @@ def make_all_biography2(input_path,output_path_kmf):
     print("Done with all_biographies2!")
 
 
+
+#--This Section is for combining all information: a) Biographies, b) creation dates, c) nomination dates, d) vital information ----
+
+# get creation date either from PAGE table or ARCHIVE table
+def get_creation(df, creation,archive_unique ):
+    creation_part=pd.merge(df, creation, on='page_title', how='left').drop_duplicates(subset='page_title').fillna('no data')
+
+    first=creation_part[creation_part['creation_date_original']!='no data'][['page_title', 'creation_date_original']]
+
+    archive_part=pd.merge(df, archive_unique, left_on='page_title', right_on='ar_title', how='left').fillna('no data')
+
+    second=archive_part[archive_part['ar_timestamp']!='no data'][['page_title','ar_timestamp']]
+
+    first_second=pd.merge( first, second, on='page_title', how='outer', indicator=True)
+
+    first_second_both=first_second[first_second['_merge']=='both'][['page_title','creation_date_original','ar_timestamp']]
+
+    first_second_both['creation_date_original2']=first_second_both.apply(lambda row: int(row['creation_date_original']) if int(row['creation_date_original'])<=int(row['ar_timestamp']) else int(row['ar_timestamp']), axis=1) 
+
+
+    first_second_either=first_second[first_second['_merge']!='both']
+
+    first_second_either['creation_date_original2']=first_second_either.apply(lambda row: int(row['creation_date_original']) if row['_merge']=='left_only' else int(row['ar_timestamp']), axis=1)
+
+    return pd.concat([first_second_both[['page_title','creation_date_original2']],first_second_either[['page_title','creation_date_original2']]]).drop_duplicates(subset='page_title')
+
+# Load Biographies with creation dates from PAGE table. 
+# Load creation dates from Archive table
+# Merge these two datasets
+def add_creation_dates(input_path_quarry):
+    print("Loading Bio-Set...\n")
+    creation=pd.read_csv(input_path_quarry / "Wikiproject_Bio2_creation_dates.csv", index_col=False)
+    creation.columns=['page_id','page_title','Entry','creation_timestamp']
+
+    creation['creation_timestamp2']=creation['creation_timestamp'].apply(lambda x: int(str(x).split("T")[0].replace("-","")+ str(x).split("T")[1].replace(":","").replace("Z","") ) if x!='no data' else 20231110080000 )
+
+    print("Loading Archive set...\n")
+    archive=pd.read_csv(input_path_quarry/ "Archive_all_8_Nov.csv", index_col=False)
+
+    archive_unique=archive.sort_values('ar_timestamp').drop_duplicates(subset='ar_title', keep='first')
+
+    creation_archive_merged=pd.merge(creation,archive_unique, left_on='page_title', right_on='ar_title', how='left')
+
+    creation_archive_merged2=creation_archive_merged[['page_id','page_title','Entry','creation_timestamp2','ar_timestamp']]
+
+    #add a random date as place holder
+    creation_archive_merged2['ar_timestamp2']=creation_archive_merged2['ar_timestamp'].fillna(20231110080000)
+
+    creation_archive_merged2['creation_date_original']=creation_archive_merged2.apply(lambda row: int(row['creation_timestamp2']) if row['creation_timestamp2']< row['ar_timestamp2'] else int(row['ar_timestamp2']), axis=1 )    
+
+    creation_archive_merged2=creation_archive_merged2[['page_id', 'page_title', 'Entry', 'creation_date_original']]
+
+    return creation_archive_merged2
+
+# Correct data where the creation date is after the nomination date
+def correct_create_date(wikidata_page_id_nominated_create,creation, archive_unique):
+    print("Correct data where the creation date is after the nomination date")
+    larger_create_date=wikidata_page_id_nominated_create[wikidata_page_id_nominated_create['creation_date_original2']>wikidata_page_id_nominated_create['rev_timestamp']]
+
+    larger_create_date2=get_creation(larger_create_date[['page_title']], creation, archive_unique)
+
+    larger_create_date_merged=pd.merge(larger_create_date2,larger_create_date, on='page_title')
+
+    extract_original_date=larger_create_date_merged[larger_create_date_merged['creation_date_original2_x']<larger_create_date_merged['rev_timestamp']][['page_title','creation_date_original2_x']]
+
+    extract_original_date2=pd.merge(extract_original_date,wikidata_page_id_nominated_create, on='page_title').drop(columns='creation_date_original2')
+
+    extract_original_date2=extract_original_date2.rename(columns={'creation_date_original2_x':'creation_date_original2'})
+
+    wikidata_page_id_nominated_create2=pd.concat([wikidata_page_id_nominated_create[~wikidata_page_id_nominated_create['page_title'].isin(extract_original_date2['page_title'])], extract_original_date2])
+
+    return wikidata_page_id_nominated_create2
+
+# Extract creation dates of nominated arctices
+def extract_data_of_nominated_articles(wikidata_page_id_nominated2, wikidata_page_id_all,creation,archive_unique):
+    print("Handling nominated articles first...\n")
+    focus_wikidata_page_id_nominated2=wikidata_page_id_nominated2[['page_title','QID','rev_timestamp']]
+    focus_wikidata_page_id_all=wikidata_page_id_all[['page_title','QID']]
+
+    focus_group=pd.merge(focus_wikidata_page_id_nominated2, focus_wikidata_page_id_all, on='QID').drop_duplicates(subset='QID')
+    focus_group = focus_group.rename(columns={'page_title_y':'page_title'})
+
+    print("Get creation dates of nominated articles which are still available...\n")
+    data=get_creation(focus_group,creation,archive_unique)
+    data1=pd.merge(focus_group,data, on='page_title')[['page_title_x','creation_date_original2','rev_timestamp','QID']]
+
+    data_part1=pd.merge(data1, wikidata_page_id_all, on='QID').drop_duplicates(subset='page_title_x')
+    data_part1=data_part1.drop(columns=['page_title']).rename(columns={'page_title_x':'page_title'})
+
+
+    print("Get creation dates of nominated articles which are not available...\n")
+    rest_data=wikidata_page_id_nominated2[~wikidata_page_id_nominated2['page_title'].isin(data_part1['page_title'])]
+    rest_data2=get_creation(rest_data,creation,archive_unique)
+    data_part2=pd.merge(rest_data2,rest_data, on='page_title')
+
+    wikidata_page_id_nominated_create=pd.concat([data_part1[list(data_part2.columns)], data_part2]).drop_duplicates(subset='page_title')
+    
+    wikidata_page_id_nominated_create_final = correct_create_date(wikidata_page_id_nominated_create,creation, archive_unique) 
+
+    return wikidata_page_id_nominated_create_final   
+
+
+# combine all data
+def join_creation_dates_vital_info_nomination_date(input_path_quarry,input_path_wikidata,input_path_conv_afd):
+    creation = add_creation_dates(input_path_quarry)
+    print(creation.head())
+
+    print("Loading Q5 set with vital information...\n")
+    wikidata_page_id_all = pd.read_csv(input_path_wikidata / 'wikidata_page_id_all2_merged.csv', index_col=False)
+    wikidata_page_id_nominated = pd.read_csv(input_path_wikidata / 'Wikidata_Gender_Birth_Death_nominated.csv', index_col=False)
+    
+    nomination = pd.read_csv(input_path_quarry / 'All_AfDs_3_Nov_2.csv', index_col=False)
+    nomination=nomination.rename(columns={'Entry':'page_title'})
+
+    archive=pd.read_csv(input_path_quarry / 'Archive_all_8_Nov.csv', index_col=False)
+    archive_unique=archive.sort_values('ar_timestamp').drop_duplicates(subset='ar_title', keep='first')
+
+    wikidata_page_id_all=wikidata_page_id_all.drop(columns='page_id')
+    creation=creation.sort_values('creation_date_original')
+
+    wikidata_page_id_nominated=wikidata_page_id_nominated[wikidata_page_id_nominated['instance of']=='human']
+    wikidata_page_id_nominated=wikidata_page_id_nominated.drop(columns='instance of')
+    wikidata_page_id_nominated=wikidata_page_id_nominated[list(wikidata_page_id_all.columns)]
+    wikidata_page_id_nominated=wikidata_page_id_nominated.drop_duplicates(subset='page_title', keep='last')
+    wikidata_page_id_nominated2=pd.merge(nomination,wikidata_page_id_nominated, on='page_title').drop_duplicates(subset='page_title')
+
+    wikidata_page_id_nominated_create_final = extract_data_of_nominated_articles(wikidata_page_id_nominated2,wikidata_page_id_all,creation,archive_unique)
+
+    print("Handling not nominated articles now...\n")
+    wikidata_page_id_all_not_nominated=wikidata_page_id_all[~wikidata_page_id_all['QID'].isin(wikidata_page_id_nominated_create_final['QID'])]
+    data3=get_creation(wikidata_page_id_all_not_nominated,creation,archive_unique)
+    #setting invalid nomination date for non nominated
+    data3['rev_timestamp']= 20231104000000 
+
+    wikidata_page_id_all_not_nominated2=pd.merge(data3, wikidata_page_id_all_not_nominated, on='page_title').drop_duplicates(subset='page_title')
+    wikidata_page_id_all_not_nominated_create_final=wikidata_page_id_all_not_nominated2[~wikidata_page_id_all_not_nominated2['page_title'].isin(wikidata_page_id_nominated_create_final['page_title'])]
+
+    wikidata_page_id_all_not_nominated_create_final['nominated']=0
+    wikidata_page_id_nominated_create_final['nominated']=1
+
+    all_biographies=pd.concat([wikidata_page_id_nominated_create_final,wikidata_page_id_all_not_nominated_create_final]).drop_duplicates(subset='page_title', keep='first')
+
+    print("Fixing nominated data that have records in the AfD conversation log dataset...\n")
+    articles = pd.read_csv(input_path_conv_afd, index_col=False)
+    articles['page_title']=articles['Entry'].apply(lambda x: str(x).replace(" ","_"))
+    afds=pd.merge(articles[articles['action']=='Nomination'][['page_title','date','timestamp']], all_biographies, on='page_title').drop_duplicates(subset='page_title')
+
+
+    afds_need_nomination=afds[afds['nominated']==0].sort_values('timestamp')
+    afds_need_nomination['rev_timestamp']=afds_need_nomination['timestamp'].apply(lambda x: pd.Timestamp(x, unit='s')).apply(lambda x1: int(str(x1).split(" ")[0].replace("-","") + str(x1).split(" ")[1].replace(":","")))
+    afds_need_nomination['nominated']=1
+
+    all_biographies2=pd.concat([afds_need_nomination[all_biographies.columns],all_biographies[~all_biographies['page_title'].isin(afds_need_nomination['page_title'])]]).drop_duplicates(subset='page_title', keep='first')
+
+    print("Handling data that were nominated multiple times...\n")
+    nomination['other_nomination']=nomination['page_title'].apply(lambda x: str(x).split("_(")[0] if 'nomination' in str(x) else "no data")
+    temp=pd.merge(nomination[nomination['other_nomination']!='no data'],all_biographies, left_on='other_nomination', right_on='page_title')
+    more_nomination=temp[(temp['rev_timestamp_x']>=temp['creation_date_original2'])].sort_values('rev_timestamp_x').drop_duplicates(subset='other_nomination')
+    more_nomination=more_nomination.drop(columns=['page_title_x','rev_timestamp_y','other_nomination'])
+    more_nomination=more_nomination.rename(columns={'page_title_y':'page_title','rev_timestamp_x':'rev_timestamp'})[all_biographies.columns]
+    more_nomination['nominated']=1
+    all_biographies2=pd.concat([more_nomination,all_biographies2[~all_biographies2['page_title'].isin(more_nomination['page_title'])]])
+
+    return all_biographies2
+
+
+
+
 @app.command()
 def main(
     # ---- REPLACE DEFAULT PATHS AS APPROPRIATE ----
-    input_path: Path = RAW_DATA_DIR / "all_biographies.csv",
+    input_path_quarry: Path = RAW_DATA_DIR / "Quarry",
+    input_path_wikidata: Path = RAW_DATA_DIR / "Wikidata",
     input_path_conv_afd = RAW_DATA_DIR / "From_Begin_Afd_Conversation3.csv",
     output_path_kmf: Path = PROCESSED_DATA_DIR / "all_biographies2.csv",
     output_path_cox_ph: Path = PROCESSED_DATA_DIR / "all_biographies2_with_data.csv",
@@ -417,8 +585,12 @@ def main(
     # ----------------------------------------------
 ):
     # ---- REPLACE THIS WITH YOUR OWN CODE ----
+    
+    logger.info("Join Biographies with creation dates, nomination  dates and Vital information...")
+    all_biographies = join_creation_dates_vital_info_nomination_date(input_path_quarry, input_path_wikidata,input_path_conv_afd)
+
     logger.info("Processing dataset for Kaplan-Meier estimation...")
-    make_all_biography2(input_path,output_path_kmf)
+    make_all_biography2(all_biographies,output_path_kmf)
 
     logger.info("Processing dataset for Cox proportional hazards model...")
     make_data_for_survival_model(petscan_path,output_path_kmf,output_path_cox_ph)
