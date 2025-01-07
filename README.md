@@ -52,8 +52,6 @@ Web communities depend on open forums for tasks like governance, information sha
 │
 ├── docs               <- A default mkdocs project; see www.mkdocs.org for details
 │
-├── models             <- Trained and serialized models, model predictions, or model summaries
-│
 ├── Survival Analysis.ipynb          <- Jupyter notebook to data exploration and create visualization.
 │
 ├── pyproject.toml     <- Project configuration file with package metadata for 
