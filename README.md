@@ -21,13 +21,13 @@ Web communities depend on open forums for tasks like governance, information sha
 ```
     make data
 ```
-All the outputs will be stored in folder "processed".
+    All the outputs will be stored in folder "processed".
 
 5. Then prepare dataset for retrospective analysis
 ```
     make retrospective_data
 ```
-All the outputs will be stored in folder "interim" and "processed".
+    All the outputs will be stored in folder "interim" and "processed".
 
 
 6. To explore and visualize the results of the survival analysis, refer to the notebook: Survival Analysis.ipynb
@@ -35,7 +35,7 @@ All the outputs will be stored in folder "interim" and "processed".
 ```
     make compete_risk
 ```
-The report will be stored in file "reports/figures/Fig5-All_models.pdf".
+    The report will be stored in file "reports/figures/Fig5-All_models.pdf".
 
 
     
