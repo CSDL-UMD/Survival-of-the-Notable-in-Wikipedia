@@ -42,12 +42,12 @@ AND page_namespace = 4
 AND page_is_redirect = 0
 AND rev_parent_id = 0;
 ```
-- Save the results in the file "All_AfDs_3_Nov_2.csv."
+- Save the results in the file "raw/Quarry/All_AfDs_3_Nov_2.csv."
 
 ### Step 3: Retrieve Creation Dates
 #### For Entries Without Deletion Nominations:
 - Use the Wikipedia REST API to extract the creation dates of the articles from the page table.
-- Save the results in the file "Wikiproject_Bio2_creation_dates.csv."
+- Save the results in the file "raw/Quarry/Wikiproject_Bio2_creation_dates.csv."
 
 #### For Entries With Deletion Nominations:
 - Apply the same API method for kept or redirected articles.
@@ -62,7 +62,7 @@ FROM archive
 WHERE ar_namespace = 0
 AND ar_parent_id = 0;
 ```
-- Save the data in the file "Archive_all_8_Nov.csv."
+- Save the data in the file "raw/Quarry/Archive_all_8_Nov.csv."
 
 ### Step 5: Extract Vital Information of Biography Subjects
 #### Use SPARQL for Bulk Data Extraction:
@@ -96,11 +96,11 @@ LIMIT 1000000 OFFSET 0
 - Set execution timeout at least 120000 milliseconds. 
 - Adjust Offset for batch processing. Increase the Offset by 1000000 for each query execution and run until the offset reaches 20000000.
 #### Refine Data Using Wikidata Client API:
-- Validate or enrich missing attributes (gender, birth, death dates). Save the final dataset in "wikidata_page_id_all2_merged.csv."
-- To filter out AfDs of non-biographical content, parse the entry title from the title of the AfD discussion page. Then, use the API to extract attributes (instance of, gender, birth, death dates). Select the data with the “Human” attributes and save the dataset in "Wikidata_Gender_Birth_Death_nominated.csv."
+- Validate or enrich missing attributes (gender, birth, death dates). Save the final dataset in "raw/Wikidata/wikidata_page_id_all2_merged.csv."
+- To filter out AfDs of non-biographical content, parse the entry title from the title of the AfD discussion page. Then, use the API to extract attributes (instance of, gender, birth, death dates). Select the data with the “Human” attributes and save the dataset in "raw/Wikidata/Wikidata_Gender_Birth_Death_nominated.csv."
 
 ### Step 6: Extract Data from PetScan
-PetScan is a tool that allows you to extract lists of Wikipedia pages based on specific criteria or categories. Follow the instructions below to collect data to categorize individuals into Living People, Contemporary Dead, and Historical People. This method will help you identify individuals for whom no vital information has been recorded in Wikidata.
+PetScan is a tool that allows you to extract lists of Wikipedia pages based on specific criteria or categories. Follow the instructions below to collect data to categorize individuals into Living People, Contemporary Dead, and Historical People. This method will help you identify individuals for whom no vital information has been recorded in Wikidata. All of the following datasets are stored in folder "petscan".
 #### Living People
 To gather data for contemporary living people, follow these steps:
 
@@ -136,5 +136,5 @@ Follow these steps:
 Using PetScan in this way, you can efficiently gather and filter data based on category membership and time periods, allowing you to categorize individuals as living, contemporary dead, or historical people.
 
 #### Step 7: Extract Conversation logs of the Article for Deletion
-Parse the contents of each AfD discussion to extract the title of the discussed entry, the rationale provided for nominating the entry, the final outcome of the deliberation, and the timestamp of the closing of the discussion.  Save the data in the file “From_Begin_Afd_Conversation3.csv”.
+Parse the contents of each AfD discussion to extract the title of the discussed entry, the rationale provided for nominating the entry, the final outcome of the deliberation, and the timestamp of the closing of the discussion.  Save the data in the file “raw/From_Begin_Afd_Conversation3.csv”.
 
