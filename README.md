@@ -91,8 +91,8 @@ If you use this code or build upon this work, please cite the following paper:
 
 > Khandaker Tasnim Huq and Giovanni Luca Ciampaglia.  
 > *"Survival of the Notable: Gender Asymmetry in Wikipedia Collective Deliberations."*  
-> arXiv preprint arXiv:2411.04340 (2024).  
-> [https://arxiv.org/abs/2411.04340](https://arxiv.org/abs/2411.04340)
+> arXiv preprint arXiv:2411.04340 (2024).
+> [https://doi.org/10.48550/arXiv.2411.04340](https://doi.org/10.48550/arXiv.2411.04340)
 
 ### BibTeX
 ```bibtex
