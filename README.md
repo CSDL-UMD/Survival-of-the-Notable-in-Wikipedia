@@ -20,7 +20,7 @@ Web communities depend on open forums for tasks like governance, information sha
 ```
     make create_environment
 ```
-4. Download raw datasets from [Zenodo](https://zenodo.org/records/15259030).
+4. Download raw datasets from [Zenodo](https://zenodo.org/records/15259030). Then unzip data.zip and place the contents into this project folder. 
 
 (Optional) Steps to build dataset from scratch:
 If you want to extract raw dataset and store in folders "data/raw" and "data/petscan", follow the [Manual](docs/docs/index.md). 
