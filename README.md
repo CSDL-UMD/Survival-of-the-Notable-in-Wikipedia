@@ -17,29 +17,32 @@ Web communities depend on open forums for tasks like governance, information sha
 ```
     make create_environment
 ```
-4. Then prepare dataset
+4. Download raw datasets from Zenodo, which is currently under community review.
+
+(Optional) Steps to build dataset from scratch:
+If you want to extract raw dataset and store in folders "raw" and "petscan", follow the [Manual](docs/docs/index.md). 
+    
+
+5. Then prepare dataset
 ```
     make data
 ```
 All the outputs will be stored in folder "processed".
 
-5. Then prepare dataset for retrospective analysis
+6. Then prepare dataset for retrospective analysis
 ```
     make retrospective_data
 ```
 All the outputs will be stored in folder "interim" and "processed".
 
 
-6. To explore and visualize the results of the survival analysis, refer to the notebook: Survival Analysis.ipynb
-7. To model competing risk (both Multi-state and Single-state models) and create visualization
+7. To explore and visualize the results of the survival analysis, refer to the notebook: Survival Analysis.ipynb
+8. To model competing risk (both Multi-state and Single-state models) and create visualization
 ```
     make compete_risk
 ```
 The report will be stored in file "reports/figures/Fig5-All_models.pdf".
 
-## (Optional) Steps to build dataset from scratch
-If you want to extract raw dataset and store in folders "raw" and "petscan", follow the [Manual](docs/docs/index.md). 
-    
 
 ## Project Organization
 
