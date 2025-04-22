@@ -1,4 +1,4 @@
-# Survival_of_Notability
+# Survival of Notability
 
 <a target="_blank" href="https://cookiecutter-data-science.drivendata.org/">
     <img src="https://img.shields.io/badge/CCDS-Project%20template-328F97?logo=cookiecutter" />
@@ -37,7 +37,8 @@ Web communities depend on open forums for tasks like governance, information sha
 ```
     The report will be stored in file "reports/figures/Fig5-All_models.pdf".
 
-
+## Steps to build dataset from scratch
+Follow the [Manual](docs/docs/index.md) to extract raw dataset and store in folders "raw" and "petscan".
     
 
 ## Project Organization

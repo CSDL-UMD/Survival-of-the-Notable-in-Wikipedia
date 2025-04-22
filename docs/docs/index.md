@@ -1,15 +1,13 @@
-# Survival_of_Notability
-
-## Description
+# Description
 
 Web communities depend on open forums for tasks like governance, information sharing, and decision-making, but these can yield biased outcomes. In Wikipedia's Articles for Deletion (AfD) discussions, biographies of women face faster deletion nominations, longer consensus times, and are more often redirected or merged into men’s biographies, highlighting gender asymmetries. Our study employs a competing risk survival framework to illuminate AfD’s role in Wikipedia’s gender gap, offering insights for open knowledge governance.
 
-## Manual
+# Manual
 
-This manual outlines the step-by-step process to collect, process, and analyze lifecycle data of biographical entries in Wikipedia, focusing on their creation, deletion, and nomination status. Follow these steps carefully for successful execution.
+This manual outlines the step-by-step process to collect, process, and analyze the lifecycle of biographies in Wikipedia, focusing on their creation and nomination in Article for Deletion (AfD). Follow these steps carefully for successful execution.
 
-### Step 1: Collect List of Biographies
-- Use Quarry, a public querying interface for live replica SQL databases for public Wikimedia Wikis, to retrieve biographical articles.
+## Step 1: Collect List of Biographies
+- Use [Quarry](https://meta.wikimedia.org/wiki/Research:Quarry), a public querying interface for live replica SQL databases for public Wikimedia Wikis, to retrieve biographical articles.
 - Choose Database: enwiki_p or enwiki. Then, focus on articles from WikiProject “Biography,” which exclusively covers actual human beings, excluding fictional or non-human entities.
 - SQL Query in Quarry:
 ```
@@ -27,8 +25,8 @@ AND article.page_namespace = 0
 AND rev_parent_id = 0;
 ```
 
-### Step 2: Identify Articles Nominated for Deletion in AfD
-- Use Quarry to retrieve nominated articles of all categories on AfD deliberations.
+## Step 2: Identify Articles Nominated for Deletion in AfD
+- Use [Quarry](https://meta.wikimedia.org/wiki/Research:Quarry) to retrieve nominated articles of all categories on AfD deliberations.
 - Extract timestamps for AfD nominations.
 - SQL Query in Quarry:
 ```
@@ -44,17 +42,17 @@ AND rev_parent_id = 0;
 ```
 - Save the results in the file "raw/Quarry/All_AfDs_3_Nov_2.csv."
 
-### Step 3: Retrieve Creation Dates
+## Step 3: Retrieve Creation Dates
 #### For Entries Without Deletion Nominations:
-- Use the Wikipedia REST API to extract the creation dates of the articles from the page table.
+- Use the [Wikipedia REST API](https://www.mediawiki.org/wiki/API:Query) to extract the creation dates of the articles from which are recieved from Step 1.
 - Save the results in the file "raw/Quarry/Wikiproject_Bio2_creation_dates.csv."
 
 #### For Entries With Deletion Nominations:
 - Apply the same API method for kept or redirected articles.
 - For deleted or merged articles whose creation dates cannot be found in the page table, follow step 4.
 
-### Step 4: Extract Creation dates of Deleted or Merged Articles
-- Query the archive table to extract the original creation dates of the deleted or merged entries.
+## Step 4: Extract Creation dates of Deleted or Merged Articles
+- Query the archive table from [Quarry](https://meta.wikimedia.org/wiki/Research:Quarry) to extract the original creation dates of the deleted or merged entries.
 - SQL Query in Quarry:
 ```
 SELECT ar_title, ar_timestamp
@@ -64,7 +62,7 @@ AND ar_parent_id = 0;
 ```
 - Save the data in the file "raw/Quarry/Archive_all_8_Nov.csv."
 
-### Step 5: Extract Vital Information of Biography Subjects
+## Step 5: Extract Vital Information of Biography Subjects
 #### Use SPARQL for Bulk Data Extraction:
 - Go to [SPARQL Query Editor](https://wikidata.demo.openlinksw.com/sparql).
 - Retrieve attributes like gender, date of birth, and date of death for human subjects (Q5 items).
@@ -95,12 +93,12 @@ LIMIT 1000000 OFFSET 0
 ```
 - Set execution timeout at least 120000 milliseconds. 
 - Adjust Offset for batch processing. Increase the Offset by 1000000 for each query execution and run until the offset reaches 20000000.
-#### Refine Data Using Wikidata Client API:
+#### Refine Data Using [Wikidata Client API](https://www.mediawiki.org/wiki/Wikibase/API):
 - Validate or enrich missing attributes (gender, birth, death dates). Save the final dataset in "raw/Wikidata/wikidata_page_id_all2_merged.csv."
 - To filter out AfDs of non-biographical content, parse the entry title from the title of the AfD discussion page. Then, use the API to extract attributes (instance of, gender, birth, death dates). Select the data with the “Human” attributes and save the dataset in "raw/Wikidata/Wikidata_Gender_Birth_Death_nominated.csv."
 
-### Step 6: Extract Data from PetScan
-PetScan is a tool that allows you to extract lists of Wikipedia pages based on specific criteria or categories. Follow the instructions below to collect data to categorize individuals into Living People, Contemporary Dead, and Historical People. This method will help you identify individuals for whom no vital information has been recorded in Wikidata. All of the following datasets are stored in folder "petscan".
+## Step 6: Extract Data from PetScan
+[PetScan](https://meta.wikimedia.org/wiki/PetScan/en) is a tool that allows you to extract lists of Wikipedia pages based on specific criteria or categories. Follow the instructions below to collect data to categorize individuals into Living People, Contemporary Dead, and Historical People. This method will help you identify individuals for whom no vital information has been recorded in Wikidata. All of the following datasets are stored in folder "petscan".
 #### Living People
 To gather data for contemporary living people, follow these steps:
 
@@ -135,6 +133,6 @@ Follow these steps:
     - "dead_people_from_1900_to_1977" for the dataset of deceased people from 1900 to 1977.
 Using PetScan in this way, you can efficiently gather and filter data based on category membership and time periods, allowing you to categorize individuals as living, contemporary dead, or historical people.
 
-#### Step 7: Extract Conversation logs of the Article for Deletion
-Parse the contents of each AfD discussion to extract the title of the discussed entry, the rationale provided for nominating the entry, the final outcome of the deliberation, and the timestamp of the closing of the discussion.  Save the data in the file “raw/From_Begin_Afd_Conversation3.csv”.
+### Step 7: Extract Conversation logs of the Article for Deletion
+Parse the contents of each AfD discussion using [Wikipedia REST API](https://www.mediawiki.org/wiki/API:Query) to extract the title of the discussed entry, the rationale provided for nominating the entry, the final outcome of the deliberation, and the timestamp of the closing of the discussion.  Save the data in the file “raw/From_Begin_Afd_Conversation3.csv”.
 
