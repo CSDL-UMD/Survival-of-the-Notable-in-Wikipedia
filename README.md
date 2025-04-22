@@ -61,23 +61,25 @@ All the outputs will be stored in "data/processed".
 │   ├── interim        <- Intermediate data that has been transformed.
 │   ├── processed      <- The final, canonical data sets for "Survival Analysis" .
 │   └── raw            <- The original, immutable data dump.
-│       ├── Quarry     <- The original, immutable datasets extracted from "Quarry": Biographies with creation dates, Articles from Archive, Articles nominated in Article for Deletion with nomination dates .
-│       └── Wikidata   <- The original, immutable datasets extracted from "Wikidata": data with vital information such as gender, date of birth and date of death .
+│       ├── Quarry     <- The original, immutable datasets extracted from 
+│                          "Quarry": Biographies with creation dates, Articles from Archive, 
+│                          Articles nominated in Article for Deletion with nomination dates .
+│       └── Wikidata   <- The original, immutable datasets extracted from 
+│                            "Wikidata": data with vital information such as gender, 
+│                            date of birth and date of death .
 │                 
 │
-├── docs               <- A default mkdocs project; see www.mkdocs.org for details
+├── docs               <- Data manuals, and all other explanatory materials. 
+│                          This is a default mkdocs project; see www.mkdocs.org for details
 │
 ├── Survival Analysis.ipynb          <- Jupyter notebook to data exploration, survival analysis and create visualization.
 │
 ├── pyproject.toml     <- Project configuration file with package metadata for 
 │                         survival_of_notability and configuration for tools like black
-│
-├── references         <- Data dictionaries, manuals, and all other explanatory materials.
-│
 ├── reports            <- Generated analysis as HTML, PDF, LaTeX, etc.
-│   └── figures        <- Generated graphics and figures to be used in reporting
+│   └── figures         <- Generated graphics and figures to be used in reporting
 │
-├── requirements.in   <- The requirements file for reproducing the analysis environment.
+├── requirements.in    <- The requirements file for reproducing the analysis environment.
 │
 ├── setup.cfg          <- Configuration file for flake8
 │
