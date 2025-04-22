@@ -58,7 +58,7 @@ If you want to extract raw dataset and store in folders "raw" and "petscan", fol
 │
 ├── docs               <- A default mkdocs project; see www.mkdocs.org for details
 │
-├── Survival Analysis.ipynb          <- Jupyter notebook to data exploration and create visualization.
+├── Survival Analysis.ipynb          <- Jupyter notebook to data exploration, survival analysis and create visualization.
 │
 ├── pyproject.toml     <- Project configuration file with package metadata for 
 │                         survival_of_notability and configuration for tools like black
