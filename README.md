@@ -23,7 +23,7 @@ Web communities depend on open forums for tasks like governance, information sha
 If you want to extract raw dataset and store in folders "data/raw" and "data/petscan", follow the [Manual](docs/docs/index.md). 
     
 
-5. Then prepare dataset
+5. Then prepare dataset for survival analysis
 ```
     make data
 ```
