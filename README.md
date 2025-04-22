@@ -37,8 +37,8 @@ Web communities depend on open forums for tasks like governance, information sha
 ```
     The report will be stored in file "reports/figures/Fig5-All_models.pdf".
 
-## Steps to build dataset from scratch
-Follow the [Manual](docs/docs/index.md) to extract raw dataset and store in folders "raw" and "petscan".
+## (Optional) Steps to build dataset from scratch
+If you want to extract raw dataset and store in folders "raw" and "petscan", follow the [Manual](docs/docs/index.md). 
     
 
 ## Project Organization
