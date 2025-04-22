@@ -48,7 +48,7 @@ If you want to extract raw dataset and store in folders "raw" and "petscan", fol
 ├── Makefile           <- Makefile with convenience commands like `make data`
 ├── README.md          <- The top-level README for developers using this project.
 ├── data
-│   ├── petscan        <- Data from third party sources "PetScan".
+│   ├── petscan        <- Immutable datasets from third party sources "PetScan".
 │   ├── interim        <- Intermediate data that has been transformed.
 │   ├── processed      <- The final, canonical data sets for "Survival Analysis" .
 │   └── raw            <- The original, immutable data dump.
