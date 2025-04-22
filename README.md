@@ -48,11 +48,11 @@ If you want to extract raw dataset and store in folders "raw" and "petscan", fol
 ├── Makefile           <- Makefile with convenience commands like `make data`
 ├── README.md          <- The top-level README for developers using this project.
 ├── data
-│   ├── petscan        <- Immutable datasets from third party sources "PetScan".
+│   ├── petscan        <- The immutable datasets from third party sources "PetScan".
 │   ├── interim        <- Intermediate data that has been transformed.
 │   ├── processed      <- The final, canonical data sets for "Survival Analysis" .
 │   └── raw            <- The original, immutable data dump.
-│       ├── Quarry     <- immutable datasets extracted from "Quarry": Biographies with creation dates, Articles from Archive, Articles nominated in Article for Deletion with nomination dates .
+│       ├── Quarry     <- The original, immutable datasets extracted from "Quarry": Biographies with creation dates, Articles from Archive, Articles nominated in Article for Deletion with nomination dates .
 │       └── Wikidata   <- The original, immutable datasets extracted from "Wikidata": data with vital information such as gender, date of birth and date of death .
 │                 
 │
@@ -73,12 +73,15 @@ If you want to extract raw dataset and store in folders "raw" and "petscan", fol
 ├── setup.cfg          <- Configuration file for flake8
 │
 └── survival_of_notability   <- Source code for use in this project.
+    ├── __init__.py             <- Makes survival_of_notability a Python module.
     │
-    ├── __init__.py             <- Makes survival_of_notability a Python module
+    ├── config.py               <- Store useful variables and configuration.
     │
-    ├── config.py               <- Store useful variables and configuration
+    ├── dataset.py              <- Python scripts to generate data using survival analysis model.
     │
-    ├── dataset.py              <- Scripts to download or generate data
+    ├── Survival Analysis.R     <- R scripts to generate and analysis of Multi-state and Single-state competing risk model.
+    │
+    ├── Compete.R               <- R scripts for retrospective analysis using competing risk model. 
     │
     └── features.py             <- Code to create features for modeling.
     
