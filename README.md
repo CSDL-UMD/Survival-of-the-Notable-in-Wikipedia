@@ -27,16 +27,17 @@ If you want to extract raw dataset and store in folders "raw" and "petscan", fol
 ```
     make data
 ```
-All the outputs will be stored in folder "processed".
+All the outputs will be stored in folder "data/processed".
 
 6. Then prepare dataset for retrospective analysis
 ```
     make retrospective_data
 ```
-All the outputs will be stored in folder "interim" and "processed".
+All the outputs will be stored in folder "data/interim" and "data/processed".
 
 
-7. To explore and visualize the results of the survival analysis, refer to the notebook: Survival Analysis.ipynb
+7. To explore and visualize the results of the survival analysis, refer to the notebook: "Survival Analysis.ipynb". All the visualizations will be stored in folder "reports/figures/".
+
 8. To model competing risk (both Multi-state and Single-state models) and create visualization
 ```
     make compete_risk
