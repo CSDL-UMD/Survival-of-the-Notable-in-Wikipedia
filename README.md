@@ -20,32 +20,34 @@ Web communities depend on open forums for tasks like governance, information sha
 ```
     make create_environment
 ```
-4. Download raw datasets from [Zenodo](https://zenodo.org/records/15259030). Then unzip data.zip and place the contents into this project folder. 
+4. Download raw datasets from [Zenodo](https://zenodo.org/records/15259030). Then unzip "data.zip" and place the contents into this project folder. 
 
 (Optional) Steps to build dataset from scratch:
 If you want to extract raw dataset and store in folders "data/raw" and "data/petscan", follow the [Manual](docs/docs/index.md). 
     
 
-5. Then prepare dataset for survival analysis
+5. Then, using Python scripts, prepare dataset for survival analysis 
 ```
     make data
 ```
-All the outputs will be stored in folder "data/processed".
+This script will prepare datasets for: a) Kaplan-Meier estimation, b) Cox proportional hazards model analysis, and c) Competing Risk model. All the outputs will be stored in folder "data/interim" (for retrospective analysis) and "data/processed" (for the rest).
 
-6. Then prepare dataset for retrospective analysis
-```
-    make retrospective_data
-```
-All the outputs will be stored in folder "data/interim" and "data/processed".
-
-
-7. To explore and visualize the results of the survival analysis, refer to the notebook: "Survival Analysis.ipynb". All the visualizations will be stored in folder "reports/figures/".
-
-8. To model competing risk (both Multi-state and Single-state models) and create visualization
+6. Then, using R scripts, employ competing risk model (both Multi-state and Single-state models) and create visualization
 ```
     make compete_risk
 ```
 The report will be stored in file "reports/figures/Fig5-All_models.pdf".
+
+7. Then, using R scripts, prepare dataset for retrospective analysis
+```
+    make retrospective_data
+```
+All the outputs will be stored in "data/processed".
+
+
+8. Finally, to explore and visualize the results of the survival analysis and competing risk models, use the notebook: "Survival Analysis.ipynb". All the visualizations will be stored in folder "reports/figures/".
+
+
 
 
 ## Project Organization

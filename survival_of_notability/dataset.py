@@ -340,6 +340,9 @@ def make_data_for_competing_risk_model(
 
 
 def data_part3(part_3, petscan_path):
+    logger.info(
+        "Part 3: Set up and correct the entries for which the date of birth and death could not be found in Wikidata. The living or historical status of these entries is determined using datasets from PetScan...\n"
+    )
     print("Identifying living people...\n")
     part_3A = part_3[part_3["BLP"] == 1]
     part_3A["Alive"] = 1
