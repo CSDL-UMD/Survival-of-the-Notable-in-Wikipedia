@@ -77,7 +77,7 @@ If you want to extract raw dataset and store in folders "raw" and "petscan", fol
     │
     ├── config.py               <- Store useful variables and configuration.
     │
-    ├── dataset.py              <- Python scripts to generate data using survival analysis model.
+    ├── dataset.py              <- Python scripts to prepare data for survival analysis.
     │
     ├── Survival Analysis.R     <- R scripts to generate and analysis of Multi-state and Single-state competing risk model.
     │
