@@ -90,14 +90,14 @@ If you want to extract raw dataset and store in folders "raw" and "petscan", fol
 If you use this code or build upon this work, please cite the following paper:
 
 > Khandaker Tasnim Huq and Giovanni Luca Ciampaglia.  
-> *"Survival of the Notable in Wikipedia: A Gendered Lens on Article Deletion."*  
+> *"Survival of the Notable: Gender Asymmetry in Wikipedia Collective Deliberations."*  
 > arXiv preprint arXiv:2411.04340 (2024).  
 > [https://arxiv.org/abs/2411.04340](https://arxiv.org/abs/2411.04340)
 
 ### BibTeX
 ```bibtex
 @article{huq2024survival,
-  title={Survival of the Notable in Wikipedia: A Gendered Lens on Article Deletion},
+  title={Survival of the Notable: Gender Asymmetry in Wikipedia Collective Deliberations},
   author={Huq, Khandaker Tasnim and Ciampaglia, Giovanni Luca},
   journal={arXiv preprint arXiv:2411.04340},
   year={2024}
