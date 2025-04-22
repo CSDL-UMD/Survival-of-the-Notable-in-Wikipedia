@@ -60,10 +60,12 @@ All the outputs will be stored in "data/processed".
 │   ├── petscan        <- The immutable datasets from third party sources "PetScan".
 │   ├── interim        <- Intermediate data that has been transformed.
 │   ├── processed      <- The final, canonical data sets for "Survival Analysis" .
-│   └── raw            <- The original, immutable data dump.
+│   └── raw            <- The original, immutable data: conversation logs of AfD
+│       │                  from 2005 to 2023, types and gender information of the 
+│       │                   articles the nominated articles are redirected or merged to.   
 │       ├── Quarry     <- The original, immutable datasets extracted from 
-│                          "Quarry": Biographies with creation dates, Articles from Archive, 
-│                          Articles nominated in Article for Deletion with nomination dates .
+│       │                  "Quarry": Biographies with creation dates, Articles from Archive, 
+│       │                  Articles nominated in Article for Deletion with nomination dates .
 │       └── Wikidata   <- The original, immutable datasets extracted from 
 │                            "Wikidata": data with vital information such as gender, 
 │                            date of birth and date of death .
