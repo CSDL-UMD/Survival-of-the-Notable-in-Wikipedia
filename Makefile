@@ -51,7 +51,7 @@ create_requirement:
 ## Set up python interpreter environment
 .PHONY: create_environment
 create_environment:
-	pipenv --python $(PYTHON_VERSION)
+	pipenv --python $(shell which python3)
 	@echo ">>> New pipenv created. Activate with:\npipenv shell"
 	pipenv shell
 	
