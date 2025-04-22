@@ -8,6 +8,9 @@ Web communities depend on open forums for tasks like governance, information sha
 
 ## Steps to follow
 1. Clone the project repository.
+```
+    git clone https://github.com/CSDL-UMD/Survival-of-the-Notable-in-Wikipedia.git
+```    
 
 2. Create requirment.txt file
 ```
