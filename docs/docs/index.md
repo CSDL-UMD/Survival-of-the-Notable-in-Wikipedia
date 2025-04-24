@@ -11,19 +11,18 @@ This manual outlines the step-by-step process to collect, process, and analyze t
 - Choose Database: enwiki_p or enwiki. Then, focus on articles from WikiProject “Biography,” which exclusively covers actual human beings, excluding fictional or non-human entities.
 - SQL Query in Quarry:
 ```
-SELECT article.page_title, rev_timestamp
+SELECT article.page_title
 FROM page
 INNER JOIN page article
 ON page.page_title = article.page_title
-INNER JOIN revision
-ON revision.rev_page = page.page_id
 INNER JOIN categorylinks
 ON cl_from = page.page_id
 AND categorylinks.cl_to = "WikiProject_Biography_articles"
 WHERE page.page_namespace = 1
 AND article.page_namespace = 0
-AND rev_parent_id = 0;
+
 ```
+The running time: ~30 minutes
 
 ## Step 2: Identify Articles Nominated for Deletion in AfD
 - Use [Quarry](https://meta.wikimedia.org/wiki/Research:Quarry) to retrieve nominated articles of all categories on AfD deliberations.
