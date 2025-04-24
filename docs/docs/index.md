@@ -22,6 +22,7 @@ WHERE page.page_namespace = 1
 AND article.page_namespace = 0
 
 ```
+Query and result snapshots are available on Quarry: https://quarry.wmcloud.org/query/93088
 The running time: ~30 minutes
 
 ## Step 2: Identify Articles Nominated for Deletion in AfD
