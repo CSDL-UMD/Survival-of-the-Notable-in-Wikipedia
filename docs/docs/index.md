@@ -22,7 +22,7 @@ WHERE page.page_namespace = 1
 AND article.page_namespace = 0
 
 ```
-Query and result snapshots are available on Quarry: https://quarry.wmcloud.org/query/93088
+Query and result snapshots are available on Quarry: https://quarry.wmcloud.org/query/93088.
 The running time: ~30 minutes
 
 ## Step 2: Identify Articles Nominated for Deletion in AfD
@@ -40,7 +40,8 @@ AND page_namespace = 4
 AND page_is_redirect = 0
 AND rev_parent_id = 0;
 ```
-- Save the results in the file "raw/Quarry/All_AfDs_3_Nov_2.csv."
+Query and result snapshots are available on Quarry: https://quarry.wmcloud.org/query/93107. The running time: ~16 minutes
+- Save the results in the file "raw/Quarry/All_AfDs_3_Nov_2.csv." Recommendation: Save the date to retrieval of the data in the name of the file and edit it in python script "survival/of/notabilty/dataset.py". 
 
 ## Step 3: Retrieve Creation Dates
 #### For Entries Without Deletion Nominations:
