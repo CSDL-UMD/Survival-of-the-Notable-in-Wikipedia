@@ -18,7 +18,7 @@ def get_qid_label_and_creation_by_pageid(input_path, output_path,lang='en'):
     input = input[['page_title','page_id']]
     print(input.head())
     list_output = []
-    for i,row in tqdm(input[2000:2050].iterrows(), total= len(input)):
+    for i,row in tqdm(input.iterrows(), total= len(input)):
         page_id = int(row['page_id'])
         try:
             # Step 1: Get from Wikipedia — title, QID, creation timestamp
