@@ -45,8 +45,16 @@ format:
 .PHONY: create_requirement
 create_requirement:
 	pip install pip-tools
-	mkdir .myvenv
+	mkdir -p .myvenv
 	touch Pipfile
+	mkdir -p data/raw
+	mkdir -p data/raw/Quarry
+	mkdir -p data/raw/Wikidata
+
+	mkdir -p data/interim
+	mkdir -p data/processed
+	mkdir -p data/petscan
+
 
 ## Set up python interpreter environment
 .PHONY: create_environment
