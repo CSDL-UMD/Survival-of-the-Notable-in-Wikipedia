@@ -63,6 +63,12 @@ create_environment:
 #################################################################################
 
 
+## extract creation dates
+.PHONY: creation_date
+creation_date: requirements
+	$(PYTHON_INTERPRETER) survival_of_notability/get_creation_dates.py
+
+
 ## Make Dataset
 .PHONY: data
 data: requirements

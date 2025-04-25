@@ -96,7 +96,7 @@ All the outputs will be stored in "data/processed".
     │
     ├── Compete.R               <- R scripts for retrospective analysis using competing risk model. 
     │
-    └── features.py             <- Code to create features for modeling.
+    └── get_creation_dates.py             <- Code to extract creation dates of the articles.
     
 ```
 

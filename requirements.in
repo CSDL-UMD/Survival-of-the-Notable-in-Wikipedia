@@ -10,3 +10,4 @@ typer
 pandas
 lifelines
 rpy2
+requests

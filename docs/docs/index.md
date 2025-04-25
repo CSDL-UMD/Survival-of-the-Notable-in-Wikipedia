@@ -23,7 +23,8 @@ AND article.page_namespace = 0
 
 ```
 Query and result snapshots are available on Quarry: https://quarry.wmcloud.org/query/93088.
-The running time: ~30 minutes
+The running time: ~30 minutes.
+- Save the data in file "interim/Wikiproject_Bio.csv".
 
 ## Step 2: Identify Articles Nominated for Deletion in AfD
 - Use [Quarry](https://meta.wikimedia.org/wiki/Research:Quarry) to retrieve nominated articles of all categories on AfD deliberations.
@@ -46,6 +47,9 @@ Query and result snapshots are available on Quarry: https://quarry.wmcloud.org/q
 ## Step 3: Retrieve Creation Dates
 #### For Entries Without Deletion Nominations:
 - Use the [Wikipedia REST API](https://www.mediawiki.org/wiki/API:Query) to extract the creation dates of the articles from which are recieved from Step 1.
+```
+  make creation_date
+```
 - Save the results in the file "raw/Quarry/Wikiproject_Bio2_creation_dates.csv."
 
 #### For Entries With Deletion Nominations:
