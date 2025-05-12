@@ -71,9 +71,9 @@ AND ar_parent_id = 0;
 #### Use SPARQL for Bulk Data Extraction:
 #### Use SPARQL for Bulk Data Extraction:
 - Go to one of following public endpoints of Wikidata ([According to this paper](https://zenodo.org/records/7185889)):
-1. [Qlever](https://qlever.cs.uni-freiburg.de/wikidata). (Smoothest, no time limit).
-2. [Virtuoso](https://wikidata.demo.openlinksw.com/sparql). (Smooth, no time limit, need to tweak the execution timeout option)
-3. [Wikimedia/Blagraph](https://query.wikidata.org/) (Time limit error will occur. Recommend to use pagination method.)
+  1. [Qlever](https://qlever.cs.uni-freiburg.de/wikidata). (Smoothest, no time limit).
+  2. [Virtuoso](https://wikidata.demo.openlinksw.com/sparql). (Smooth, no time limit, need to tweak the execution timeout option)
+  3. [Wikimedia/Blazegraph](https://query.wikidata.org/) (Time limit error will occur. Recommend to use pagination method.)
 - Retrieve attributes like gender, date of birth, and date of death for human subjects (Q5 items).
 - SPARQL Query:
 ```
