@@ -7,42 +7,67 @@ Web communities depend on open forums for tasks like governance, information sha
 This manual outlines the step-by-step process to collect, process, and analyze the lifecycle of biographies in Wikipedia, focusing on their creation and nomination in Article for Deletion (AfD). Follow these steps carefully for successful execution.
 
 ## Step 1: Collect List of Biographies
+### English
 - Use [Quarry](https://meta.wikimedia.org/wiki/Research:Quarry), a public querying interface for live replica SQL databases for public Wikimedia Wikis, to retrieve biographical articles.
-- Choose Database: enwiki_p or enwiki. Then, focus on articles from WikiProject “Biography,” which exclusively covers actual human beings, excluding fictional or non-human entities.
-- SQL Query in Quarry:
-```
-SELECT article.page_title
-FROM page
-INNER JOIN page article
-ON page.page_title = article.page_title
-INNER JOIN categorylinks
-ON cl_from = page.page_id
-AND categorylinks.cl_to = "WikiProject_Biography_articles"
-WHERE page.page_namespace = 1
-AND article.page_namespace = 0
+  - Choose Database: enwiki_p or enwiki. Then, focus on articles from WikiProject “Biography,” which exclusively covers actual human beings, excluding fictional or non-human entities.
+  - SQL Query in Quarry:
+  ```
+  SELECT article.page_title
+  FROM page
+  INNER JOIN page article
+  ON page.page_title = article.page_title
+  INNER JOIN categorylinks
+  ON cl_from = page.page_id
+  AND categorylinks.cl_to = "WikiProject_Biography_articles"
+  WHERE page.page_namespace = 1
+  AND article.page_namespace = 0
 
-```
-Query and result snapshots are available on Quarry: https://quarry.wmcloud.org/query/93088.
-The running time: ~30 minutes.
+  ```
+  Query and result snapshots are available on Quarry: https://quarry.wmcloud.org/query/93088.
+  The running time: ~30 minutes.
+
+### Italian
+  - [PetScan](https://meta.wikimedia.org/wiki/PetScan/en) is a tool that allows you to extract lists of Wikipedia pages based on specific criteria or categories. Follow [this link](https://petscan.wmcloud.org/?psid=33977428) to get access to the snapshots of the results in PetScan and download it directly. 
+
+
 - Save the data in file "interim/Wikiproject_Bio.csv".
 
 ## Step 2: Identify Articles Nominated for Deletion in AfD
 - Use [Quarry](https://meta.wikimedia.org/wiki/Research:Quarry) to retrieve nominated articles of all categories on AfD deliberations.
 - Extract timestamps for AfD nominations.
-- SQL Query in Quarry:
-```
-SELECT TRIM('Articles_for_deletion/' FROM page_title) AS Entry, rev_timestamp
-FROM revision
-JOIN page
-ON revision.rev_page = page.page_id
-WHERE page_title LIKE '%Articles_for_deletion%'
-AND page_title NOT LIKE 'Articles_for_deletion/Log/%'
-AND page_namespace = 4
-AND page_is_redirect = 0
-AND rev_parent_id = 0;
-```
-Query and result snapshots are available on Quarry: https://quarry.wmcloud.org/query/93107. The running time: ~16 minutes
-- Save the results in the file "raw/Quarry/All_AfDs_3_Nov_2.csv." Recommendation: Save the date to retrieval of the data in the name of the file and edit it in python script "survival/of/notabilty/dataset.py". 
+### English
+  - Select "enwiki_p" in the database field.
+  - SQL Query in Quarry:
+  ```
+  SELECT TRIM('Articles_for_deletion/' FROM page_title) AS Entry, rev_timestamp
+  FROM revision
+  JOIN page
+  ON revision.rev_page = page.page_id
+  WHERE page_title LIKE '%Articles_for_deletion%'
+  AND page_title NOT LIKE 'Articles_for_deletion/Log/%'
+  AND page_namespace = 4
+  AND page_is_redirect = 0
+  AND rev_parent_id = 0;
+  ```
+  Query and result snapshots are available on Quarry: https://quarry.wmcloud.org/query/93107. The running time: ~16 minutes
+
+### Italian
+  - Select "itwiki_p" in the database field.
+  - SQL Query in Quarry:
+  ```
+  SELECT TRIM('Pagine_da_cancellare/' from page_title) as Entry, rev_timestamp
+  FROM revision
+  JOIN page ON revision.rev_page = page.page_id
+  WHERE page_title LIKE '%Pagine_da_cancellare%'
+  AND	 page_title NOT LIKE 'Pagine_da_cancellare/Log/%'
+  AND	 page_title NOT LIKE 'Pagine_da_cancellare/Conta/%'
+  AND page_namespace = 4
+  AND page_is_redirect = 0
+  AND rev_parent_id = 0;
+  ```
+  Query and result snapshots are available on Quarry: https://quarry.wmcloud.org/query/93203. The running time: ~76.42 seconds
+
+- Save the results in the file "raw/Quarry/All_AfDs_3_Nov_2.csv." Recommendation: Save the date of the retrieval of the data in the name of the file and edit it accordingly in python script "survival/of/notabilty/dataset.py". 
 
 ## Step 3: Retrieve Creation Dates
 #### For Entries Without Deletion Nominations:
@@ -69,7 +94,10 @@ AND ar_parent_id = 0;
 
 ## Step 5: Extract Vital Information of Biography Subjects
 #### Use SPARQL for Bulk Data Extraction:
-- Go to [SPARQL Query Editor](https://wikidata.demo.openlinksw.com/sparql).
+- Go to one of following public endpoints of Wikidata ([According to this paper](https://zenodo.org/records/7185889)):
+1. [Qlever](https://qlever.cs.uni-freiburg.de/wikidata). (Smoothest, no time limit).
+2. [Virtuoso](https://wikidata.demo.openlinksw.com/sparql). (Smooth, no time limit, need to tweak the execution timeout option)
+3. [Wikimedia/Blagraph](https://query.wikidata.org/) (Time limit error will occur. Recommend to use pagination method.)
 - Retrieve attributes like gender, date of birth, and date of death for human subjects (Q5 items).
 - SPARQL Query:
 ```
@@ -96,8 +124,10 @@ WHERE {
 }
 LIMIT 1000000 OFFSET 0
 ```
-- Set execution timeout at least 120000 milliseconds. 
+- For option 2, set execution timeout at least 120000 milliseconds. 
 - Adjust Offset for batch processing. Increase the Offset by 1000000 for each query execution and run until the offset reaches 20000000.
+- Save the data in file: "interim/wikidata_en.csv"
+
 #### Refine Data Using [Wikidata Client API](https://www.mediawiki.org/wiki/Wikibase/API):
 - Validate or enrich missing attributes (gender, birth, death dates). Save the final dataset in "raw/Wikidata/wikidata_page_id_all2_merged.csv."
 - To filter out AfDs of non-biographical content, parse the entry title from the title of the AfD discussion page. Then, use the API to extract attributes (instance of, gender, birth, death dates). Select the data with the “Human” attributes and save the dataset in "raw/Wikidata/Wikidata_Gender_Birth_Death_nominated.csv."
