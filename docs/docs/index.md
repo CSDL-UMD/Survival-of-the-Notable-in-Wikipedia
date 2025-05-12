@@ -69,7 +69,11 @@ AND ar_parent_id = 0;
 
 ## Step 5: Extract Vital Information of Biography Subjects
 #### Use SPARQL for Bulk Data Extraction:
-- Go to [SPARQL Query Editor](https://wikidata.demo.openlinksw.com/sparql).
+#### Use SPARQL for Bulk Data Extraction:
+- Go to one of following public endpoints of Wikidata ([According to this paper](https://zenodo.org/records/7185889)):
+1. [Qlever](https://qlever.cs.uni-freiburg.de/wikidata). (Smoothest, no time limit).
+2. [Virtuoso](https://wikidata.demo.openlinksw.com/sparql). (Smooth, no time limit, need to tweak the execution timeout option)
+3. [Wikimedia/Blagraph](https://query.wikidata.org/) (Time limit error will occur. Recommend to use pagination method.)
 - Retrieve attributes like gender, date of birth, and date of death for human subjects (Q5 items).
 - SPARQL Query:
 ```
@@ -96,7 +100,7 @@ WHERE {
 }
 LIMIT 1000000 OFFSET 0
 ```
-- Set execution timeout at least 120000 milliseconds. 
+- For option 2, set execution timeout at least 120000 milliseconds. 
 - Adjust Offset for batch processing. Increase the Offset by 1000000 for each query execution and run until the offset reaches 20000000.
 #### Refine Data Using [Wikidata Client API](https://www.mediawiki.org/wiki/Wikibase/API):
 - Validate or enrich missing attributes (gender, birth, death dates). Save the final dataset in "raw/Wikidata/wikidata_page_id_all2_merged.csv."
