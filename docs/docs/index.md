@@ -79,6 +79,8 @@ This manual outlines the step-by-step process to collect, process, and analyze t
 
 
 ## Step 4: Extract Vital Information of Biography Subjects
+Follow the instructions below to collect vital information of the subjects of biographies to categorize individuals into Living People, Contemporary Dead, and Historical People.
+
 #### Step 4.1: Use SPARQL for Bulk Data Extraction:
 - Go to one of following public endpoints of Wikidata ([According to this paper](https://zenodo.org/records/7185889)):
   1. [Qlever](https://qlever.cs.uni-freiburg.de/wikidata). (Smoothest, no time limit).
@@ -115,7 +117,7 @@ LIMIT 1000000 OFFSET 0
 - Save the data in file: "interim/wikidata_en.csv"
 
 #### Step 4.2: Wikidata-Wikipedia Integration
-The following script prepares a merged dataset linking Wikipedia article creation data, AfD nomination records, and Wikidata metadata (e.g., gender, birth/death dates, QIDs) for human subjects. It identifies which articles are missing Wikidata or creation timestamps, extracts relevant demographic info for nominated pages, and outputs cleaned CSVs for further analysis of editorial patterns and knowledge gaps.
+The following script prepares a merged dataset linking Wikipedia article creation data, AfD nomination records, and Wikidata metadata (e.g., QIDs, gender, birth/death dates) for human subjects. It identifies which articles, for both nominated and not-nominated, have missing creation timestamps or metadata from Wikidata, and outputs cleaned CSVs for further analysis.
 
 ```
 python survival_of_notability/prepare_wikidata.py 
@@ -124,7 +126,7 @@ python survival_of_notability/prepare_wikidata.py
 
 Outputs produced:
 
-- raw/Wikidata/wikidata_page_id_all2_merged.csv: Articles with both Wikidata and creation date data
+- raw/Wikidata/wikidata_page_id_all2_merged.csv: Articles with both Wikidata (gender/birth/death/QID) and creation date data
 
 - raw/Wikidata/Wikidata_Gender_Birth_Death_nominated.csv: Nominated articles with gender/birth/death/QID
 
@@ -133,7 +135,7 @@ Outputs produced:
 - interim/need_wikidata.csv: Articles missing Wikidata info or unmatched in nomination list
 
 #### Step 4.3: Wikidata Metadata Enrichment and Missing Creation Detection
-By using [Wikidata Client API](https://www.mediawiki.org/wiki/Wikibase/API), this script enriches Wikipedia page titles with Wikidata metadata—such as QIDs, gender, birth/death dates, and instance types—specifically focusing on identifying human subjects. It attempts to resolve missing entries by querying Wikidata directly using fallback language sitelinks when needed. The script filters for human instances (e.g., biographies), cleans up malformed page titles, and writes structured information to appropriate output files. It also checks whether the nominated articles are missing creation metadata and logs those entries for further processing.
+By using [Wikidata Client API](https://www.mediawiki.org/wiki/Wikibase/API), this script enriches Wikipedia page titles with Wikidata metadata—such as QIDs, gender, birth/death dates, and instance types—specifically focusing on identifying human subjects. It attempts to resolve missing entries by querying Wikidata directly using fallback language sitelinks when needed. The script filters for human instances (e.g., biographies), cleans up malformed page titles, and writes structured information to appropriate output files. It also checks whether the nominated articles are missing creation timestamps and logs those entries for further processing.
 
 ```
 python survival_of_notability/get_needed_wikidata.py 
@@ -175,7 +177,8 @@ AND ar_parent_id = 0;
 
 
 ## Step 6: Extract Data from PetScan
-[PetScan](https://meta.wikimedia.org/wiki/PetScan/en) is a tool that allows you to extract lists of Wikipedia pages based on specific criteria or categories. Follow the instructions below to collect data to categorize individuals into Living People, Contemporary Dead, and Historical People. This method will help you identify individuals for whom no vital information has been recorded in Wikidata. All of the following datasets are stored in folder "petscan".
+Follow the instructions below to collect data to categorize individuals into Living People, Contemporary Dead, and Historical People, and will help you identify individuals for whom no vital information has been recorded in Wikidata (in Step 4). [PetScan](https://meta.wikimedia.org/wiki/PetScan/en) is a tool that allows you to extract lists of Wikipedia pages based on specific criteria or categories. All of the following datasets are stored in folder "petscan".
+
 #### Living People
 To gather data for contemporary living people, follow these steps:
 
@@ -183,8 +186,8 @@ To gather data for contemporary living people, follow these steps:
 - Depth: Set the depth to 0. This ensures the query will only return pages directly in the "Living people" category, without including any subcategories.
 - Combination: Select the Union combination option. This will combine all the pages that belong to the "Living people" category, ensuring you capture all relevant entries in this category.
 
+This method will help you efficiently collect a list of individuals who are contemporary and alive.
 
-This query will help you efficiently collect a list of individuals who are contemporary and alive.
 #### Contemporary Dead and Historical People
 To classify Contemporary Dead and Historical People, use a heuristic approach based on the "People by millennium" category. This category tree organizes individuals based on their birth or death period, including subcategories like deaths or births by decades, centuries, and millennia.
 Follow these steps:
