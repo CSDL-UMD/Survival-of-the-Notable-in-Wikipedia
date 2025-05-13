@@ -102,7 +102,10 @@ All the outputs will be stored in "data/processed".
     │
     ├── get_needed_wikidata.py  <- Python scripts to extract missing metadata from Wikidata (Details in "Manual"). 
     │
-    └── get_needed_creation_dates.py   <- Python scripts to extract missing creation dates of articles (Details in "Manual").
+    ├── get_needed_creation_dates.py   <- Python scripts to extract missing creation dates of articles (Details in "Manual"). 
+    │
+    └── AfD_Parse.py            <- Python scripts to conversation logs from Article for Deletion (Details in "Manual").
+    
     
 ```
 

@@ -212,3 +212,8 @@ Using PetScan in this way, you can efficiently gather and filter data based on c
 ### Step 7: Extract Conversation logs of the Article for Deletion
 Parse the contents of each AfD discussion using [Wikipedia REST API](https://www.mediawiki.org/wiki/API:Query) to extract the title of the discussed entry, the rationale provided for nominating the entry, the final outcome of the deliberation, and the timestamp of the closing of the discussion.  Save the data in the file “raw/From_Begin_Afd_Conversation3.csv”.
 
+```
+python survival_of_notability/AfD_Parse.py 
+
+```
+
