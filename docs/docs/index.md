@@ -77,27 +77,12 @@ This manual outlines the step-by-step process to collect, process, and analyze t
 ```
 - Save the results in the file "raw/Quarry/Wikiproject_Bio2_creation_dates.csv."
 
-#### For Entries With Deletion Nominations:
-- Apply the same API method for kept or redirected articles.
-- For deleted or merged articles whose creation dates cannot be found in the page table, follow step 4.
-
-## Step 4: Extract Creation dates of Deleted or Merged Articles
-- Query the archive table from [Quarry](https://meta.wikimedia.org/wiki/Research:Quarry) to extract the original creation dates of the deleted or merged entries.
-- SQL Query in Quarry:
-```
-SELECT ar_title, ar_timestamp
-FROM archive
-WHERE ar_namespace = 0
-AND ar_parent_id = 0;
-```
-- Save the data in the file "raw/Quarry/Archive_all_8_Nov.csv."
-
-## Step 5: Extract Vital Information of Biography Subjects
-#### Use SPARQL for Bulk Data Extraction:
+## Step 4: Extract Vital Information of Biography Subjects
+#### Step 4.1: Use SPARQL for Bulk Data Extraction:
 - Go to one of following public endpoints of Wikidata ([According to this paper](https://zenodo.org/records/7185889)):
-1. [Qlever](https://qlever.cs.uni-freiburg.de/wikidata). (Smoothest, no time limit).
-2. [Virtuoso](https://wikidata.demo.openlinksw.com/sparql). (Smooth, no time limit, need to tweak the execution timeout option)
-3. [Wikimedia/Blagraph](https://query.wikidata.org/) (Time limit error will occur. Recommend to use pagination method.)
+  1. [Qlever](https://qlever.cs.uni-freiburg.de/wikidata). (Smoothest, no time limit).
+  2. [Virtuoso](https://wikidata.demo.openlinksw.com/sparql). (Smooth, no time limit, need to tweak the execution timeout option)
+  3. [Wikimedia/Blazegraph](https://query.wikidata.org/) (Time limit error will occur. Recommend to use pagination method.)
 - Retrieve attributes like gender, date of birth, and date of death for human subjects (Q5 items).
 - SPARQL Query:
 ```
@@ -128,9 +113,65 @@ LIMIT 1000000 OFFSET 0
 - Adjust Offset for batch processing. Increase the Offset by 1000000 for each query execution and run until the offset reaches 20000000.
 - Save the data in file: "interim/wikidata_en.csv"
 
-#### Refine Data Using [Wikidata Client API](https://www.mediawiki.org/wiki/Wikibase/API):
-- Validate or enrich missing attributes (gender, birth, death dates). Save the final dataset in "raw/Wikidata/wikidata_page_id_all2_merged.csv."
-- To filter out AfDs of non-biographical content, parse the entry title from the title of the AfD discussion page. Then, use the API to extract attributes (instance of, gender, birth, death dates). Select the data with the “Human” attributes and save the dataset in "raw/Wikidata/Wikidata_Gender_Birth_Death_nominated.csv."
+#### Step 4.2: Wikidata-Wikipedia Integration
+The following script prepares a merged dataset linking Wikipedia article creation data, AfD nomination records, and Wikidata metadata (e.g., gender, birth/death dates, QIDs) for human subjects. It identifies which articles are missing Wikidata or creation timestamps, extracts relevant demographic info for nominated pages, and outputs cleaned CSVs for further analysis of editorial patterns and knowledge gaps.
+
+```
+python survival_of_notability/prepare_wikidata.py 
+
+```
+
+Outputs produced:
+
+- raw/Wikidata/wikidata_page_id_all2_merged.csv: Articles with both Wikidata and creation date data
+
+- raw/Wikidata/Wikidata_Gender_Birth_Death_nominated.csv: Nominated articles with gender/birth/death/QID
+
+- interim/need_creation.csv: Articles with Wikidata but missing creation metadata
+
+- interim/need_wikidata.csv: Articles missing Wikidata info or unmatched in nomination list
+
+#### Step 4.3: Wikidata Metadata Enrichment and Missing Creation Detection
+By using [Wikidata Client API](https://www.mediawiki.org/wiki/Wikibase/API), this script enriches Wikipedia page titles with Wikidata metadata—such as QIDs, gender, birth/death dates, and instance types—specifically focusing on identifying human subjects. It attempts to resolve missing entries by querying Wikidata directly using fallback language sitelinks when needed. The script filters for human instances (e.g., biographies), cleans up malformed page titles, and writes structured information to appropriate output files. It also checks whether the nominated articles are missing creation metadata and logs those entries for further processing.
+
+```
+python survival_of_notability/get_needed_wikidata.py 
+
+```
+
+Outputs produced:
+
+- raw/Wikidata/wikidata_page_id_all2_merged.csv: Metadata for articles successfully matched to Wikidata and with known page IDs
+
+- raw/Wikidata/Wikidata_Gender_Birth_Death_nominated.csv: Metadata for nominated articles that couldn't be linked to existing page IDs
+
+- interim/need_creation.csv: Articles with Wikidata metadata but missing creation timestamps in the existing dataset
+
+#### Step 4.4: Wikipedia Page Creation Timestamp
+This script retrieves the creation timestamps for Wikipedia articles with missing creation dates. It uses the [Wikipedia REST API](https://www.mediawiki.org/wiki/API:Query) to extract the oldest revision (i.e., article creation date) for each entry. The output is a cleaned and structured dataset with page ID, title, human-readable title, and creation time, used to fill missing metadata for previously unmatched articles.
+
+```
+python survival_of_notability/get_needed_creation_dates.py 
+
+```
+
+Outputs produced:
+
+- raw/Quarry/Wikiproject_Bio2_creation_dates.csv: Contains page ID, original and readable page titles, and creation timestamps for articles listed in need_creation.csv.
+
+
+## Step 5: Extract Creation dates of Deleted or Merged Articles
+For articles (specially deleted or merged) whose creation dates cannot be found in the page table via step 3 and 4 using Wikipedia API, follow this step:
+- Query the archive table from [Quarry](https://meta.wikimedia.org/wiki/Research:Quarry) to extract the original creation dates of the deleted or merged entries.
+- SQL Query in Quarry:
+```
+SELECT ar_title, ar_timestamp
+FROM archive
+WHERE ar_namespace = 0
+AND ar_parent_id = 0;
+```
+- Save the data in the file "raw/Quarry/Archive_all_8_Nov.csv."
+
 
 ## Step 6: Extract Data from PetScan
 [PetScan](https://meta.wikimedia.org/wiki/PetScan/en) is a tool that allows you to extract lists of Wikipedia pages based on specific criteria or categories. Follow the instructions below to collect data to categorize individuals into Living People, Contemporary Dead, and Historical People. This method will help you identify individuals for whom no vital information has been recorded in Wikidata. All of the following datasets are stored in folder "petscan".

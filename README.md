@@ -96,7 +96,13 @@ All the outputs will be stored in "data/processed".
     │
     ├── Compete.R               <- R scripts for retrospective analysis using competing risk model. 
     │
-    └── get_creation_dates.py             <- Code to extract creation dates of the articles.
+    ├── get_creation_dates.py   <- Code to extract creation dates of the articles. 
+    │
+    ├── prepare_wikidata.py     <- Python scripts to integrate creation dates of articles and metadata from Wikidata (Details in "Manual"). 
+    │
+    ├── get_needed_wikidata.py  <- Python scripts to extract missing metadata from Wikidata (Details in "Manual"). 
+    │
+    └── get_needed_creation_dates.py   <- Python scripts to extract missing creation dates of articles (Details in "Manual").
     
 ```
 
