@@ -6,8 +6,9 @@ Web communities depend on open forums for tasks like governance, information sha
 
 This manual outlines the step-by-step process to collect, process, and analyze the lifecycle of biographies in Wikipedia, focusing on their creation and nomination in Article for Deletion (AfD). Follow these steps carefully for successful execution.
 
-## Step 1: Collect List of Biographies
-### English
+## Step 1: Collect List of Biographies and their creation dates
+### Step 1.1: Collect List of Biographies
+#### English
 - Use [Quarry](https://meta.wikimedia.org/wiki/Research:Quarry), a public querying interface for live replica SQL databases for public Wikimedia Wikis, to retrieve biographical articles.
   - Choose Database: enwiki_p or enwiki. Then, focus on articles from WikiProject “Biography,” which exclusively covers actual human beings, excluding fictional or non-human entities.
   - SQL Query in Quarry:
@@ -28,15 +29,14 @@ This manual outlines the step-by-step process to collect, process, and analyze t
 
 - Save the data in file "interim/Wikiproject_Bio.csv".
 
-## Step 2: Retrieve Creation Dates
-#### For Entries Without Deletion Nominations:
-- Use the [Wikipedia REST API](https://www.mediawiki.org/wiki/API:Query) to extract the creation dates of the articles from which are recieved from Step 1.
+### Step 1.2: Retrieve Creation Dates
+- Use the [Wikipedia REST API](https://www.mediawiki.org/wiki/API:Query) to extract the creation dates of the articles from which are recieved from Step 1.1.
 ```
   make creation_date
 ```
 - Save the results in the file "raw/Quarry/Wikiproject_Bio2_creation_dates.csv."
 
-## Step 3: Identify Articles Nominated for Deletion in AfD
+## Step 2: Identify Articles Nominated for Deletion in AfD
 - Use [Quarry](https://meta.wikimedia.org/wiki/Research:Quarry) to retrieve nominated articles of all categories on AfD deliberations.
 - Extract timestamps for AfD nominations.
 ### English
@@ -55,13 +55,13 @@ This manual outlines the step-by-step process to collect, process, and analyze t
   ```
   Query and result snapshots are available on Quarry: https://quarry.wmcloud.org/query/93107. The running time: ~16 minutes
 
-- Save the results in the file "raw/Quarry/All_AfDs_3_Nov_2.csv." Recommendation: Save the date of the retrieval of the data in the name of the file and edit it accordingly in python script "survival_of_notabilty/dataset.py". 
+- Save the results in the file "raw/Quarry/All_AfDs_3_Nov_2.csv." Recommendation: Save the date of the retrieval of the data in the name of the file and edit it accordingly in python script "survival/of/notabilty/dataset.py". 
 
 
-## Step 4: Extract Vital Information of Biography Subjects
+## Step 3: Extract Vital Information of Biography Subjects
 Follow the instructions below to collect vital information of the subjects of biographies to categorize individuals into Living People, Contemporary Dead, and Historical People.
 
-#### Step 4.1: Use SPARQL for Bulk Data Extraction:
+#### Step 3.1: Use SPARQL for Bulk Data Extraction:
 - Go to one of following public endpoints of Wikidata ([According to this paper](https://zenodo.org/records/7185889)):
   1. [Qlever](https://qlever.cs.uni-freiburg.de/wikidata). (Smoothest, no time limit).
   2. [Virtuoso](https://wikidata.demo.openlinksw.com/sparql). (Smooth, no time limit, need to tweak the execution timeout option)
@@ -96,7 +96,7 @@ LIMIT 1000000 OFFSET 0
 - Adjust Offset for batch processing. Increase the Offset by 1000000 for each query execution and run until the offset reaches 20000000.
 - Save the data in file: "interim/wikidata_en.csv"
 
-#### Step 4.2: Wikidata-Wikipedia Integration
+#### Step 3.2: Wikidata-Wikipedia Integration
 The following script prepares a merged dataset linking Wikipedia article creation data, AfD nomination records, and Wikidata metadata (e.g., QIDs, gender, birth/death dates) for human subjects. It identifies which articles, for both nominated and not-nominated, have missing creation timestamps or metadata from Wikidata, and outputs cleaned CSVs for further analysis.
 
 ```
@@ -114,7 +114,7 @@ Outputs produced:
 
 - interim/need_wikidata.csv: Articles missing Wikidata info or unmatched in nomination list
 
-#### Step 4.3: Wikidata Metadata Enrichment and Missing Creation Detection
+#### Step 3.3: Wikidata Metadata Enrichment and Missing Creation Detection
 By using [Wikidata Client API](https://www.mediawiki.org/wiki/Wikibase/API), this script enriches Wikipedia page titles with Wikidata metadata—such as QIDs, gender, birth/death dates, and instance types—specifically focusing on identifying human subjects. It attempts to resolve missing entries by querying Wikidata directly using fallback language sitelinks when needed. The script filters for human instances (e.g., biographies), cleans up malformed page titles, and writes structured information to appropriate output files. It also checks whether the nominated articles are missing creation timestamps and logs those entries for further processing.
 
 ```
@@ -130,7 +130,7 @@ Outputs produced:
 
 - interim/need_creation.csv: Articles with Wikidata metadata but missing creation timestamps in the existing dataset
 
-#### Step 4.4: Wikipedia Page Creation Timestamp
+#### Step 3.4: Wikipedia Page Creation Timestamp
 This script retrieves the creation timestamps for Wikipedia articles with missing creation dates. It uses the [Wikipedia REST API](https://www.mediawiki.org/wiki/API:Query) to extract the oldest revision (i.e., article creation date) for each entry. The output is a cleaned and structured dataset with page ID, title, human-readable title, and creation time, used to fill missing metadata for previously unmatched articles.
 
 ```
@@ -143,8 +143,8 @@ Outputs produced:
 - raw/Quarry/Wikiproject_Bio2_creation_dates.csv: Contains page ID, original and readable page titles, and creation timestamps for articles listed in need_creation.csv.
 
 
-## Step 5: Extract Creation dates of Deleted or Merged Articles
-For articles (specially deleted or merged) whose creation dates cannot be found in the page table via step 2 and 4 using Wikipedia API, follow this step:
+## Step 4: Extract Creation dates of Deleted or Merged Articles
+For articles (specially deleted or merged) whose creation dates cannot be found in the page table via step 1 and 3 using Wikipedia API, follow this step:
 - Query the archive table from [Quarry](https://meta.wikimedia.org/wiki/Research:Quarry) to extract the original creation dates of the deleted or merged entries.
 - SQL Query in Quarry:
 ```
@@ -156,7 +156,7 @@ AND ar_parent_id = 0;
 - Save the data in the file "raw/Quarry/Archive_all_8_Nov.csv."
 
 
-## Step 6: Extract Data from PetScan
+## Step 5: Extract Data from PetScan
 Follow the instructions below to collect data to categorize individuals into Living People, Contemporary Dead, and Historical People, and will help you identify individuals for whom no vital information has been recorded in Wikidata (in Step 4). [PetScan](https://meta.wikimedia.org/wiki/PetScan/en) is a tool that allows you to extract lists of Wikipedia pages based on specific criteria or categories. All of the following datasets are stored in folder "petscan".
 
 #### Living People
@@ -193,7 +193,7 @@ Follow these steps:
     - "dead_people_from_1900_to_1977" for the dataset of deceased people from 1900 to 1977.
 Using PetScan in this way, you can efficiently gather and filter data based on category membership and time periods, allowing you to categorize individuals as living, contemporary dead, or historical people.
 
-### Step 7: Extract Conversation logs of the Article for Deletion
+### Step 6: Extract Conversation logs of the Article for Deletion
 Parse the contents of each AfD discussion using [Wikipedia REST API](https://www.mediawiki.org/wiki/API:Query) to extract the title of the discussed entry, the rationale provided for nominating the entry, the final outcome of the deliberation, and the timestamp of the closing of the discussion.  Save the data in the file “raw/From_Begin_Afd_Conversation3.csv”.
 
 ```
