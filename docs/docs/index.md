@@ -32,7 +32,15 @@ This manual outlines the step-by-step process to collect, process, and analyze t
 
 - Save the data in file "interim/Wikiproject_Bio.csv".
 
-## Step 2: Identify Articles Nominated for Deletion in AfD
+## Step 2: Retrieve Creation Dates
+#### For Entries Without Deletion Nominations:
+- Use the [Wikipedia REST API](https://www.mediawiki.org/wiki/API:Query) to extract the creation dates of the articles from which are recieved from Step 1.
+```
+  make creation_date
+```
+- Save the results in the file "raw/Quarry/Wikiproject_Bio2_creation_dates.csv."
+
+## Step 3: Identify Articles Nominated for Deletion in AfD
 - Use [Quarry](https://meta.wikimedia.org/wiki/Research:Quarry) to retrieve nominated articles of all categories on AfD deliberations.
 - Extract timestamps for AfD nominations.
 ### English
@@ -69,13 +77,6 @@ This manual outlines the step-by-step process to collect, process, and analyze t
 
 - Save the results in the file "raw/Quarry/All_AfDs_3_Nov_2.csv." Recommendation: Save the date of the retrieval of the data in the name of the file and edit it accordingly in python script "survival/of/notabilty/dataset.py". 
 
-## Step 3: Retrieve Creation Dates
-#### For Entries Without Deletion Nominations:
-- Use the [Wikipedia REST API](https://www.mediawiki.org/wiki/API:Query) to extract the creation dates of the articles from which are recieved from Step 1.
-```
-  make creation_date
-```
-- Save the results in the file "raw/Quarry/Wikiproject_Bio2_creation_dates.csv."
 
 ## Step 4: Extract Vital Information of Biography Subjects
 #### Step 4.1: Use SPARQL for Bulk Data Extraction:
@@ -161,7 +162,7 @@ Outputs produced:
 
 
 ## Step 5: Extract Creation dates of Deleted or Merged Articles
-For articles (specially deleted or merged) whose creation dates cannot be found in the page table via step 3 and 4 using Wikipedia API, follow this step:
+For articles (specially deleted or merged) whose creation dates cannot be found in the page table via step 2 and 4 using Wikipedia API, follow this step:
 - Query the archive table from [Quarry](https://meta.wikimedia.org/wiki/Research:Quarry) to extract the original creation dates of the deleted or merged entries.
 - SQL Query in Quarry:
 ```
