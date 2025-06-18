@@ -166,6 +166,8 @@ Outputs produced:
 ## Step 4: Extract Creation dates of Deleted or Merged Articles
 For articles (specially deleted or merged) whose creation dates cannot be found in the page table via step 1 and 3 using Wikipedia API, follow this step:
 - Query the archive table from [Quarry](https://meta.wikimedia.org/wiki/Research:Quarry) to extract the original creation dates of the deleted or merged entries.
+
+- For English, select 
 - SQL Query in Quarry:
 ```
 SELECT ar_title, ar_timestamp
@@ -179,16 +181,22 @@ AND ar_parent_id = 0;
 ## Step 5: Extract Data from PetScan
 Follow the instructions below to collect data to categorize individuals into Living People, Contemporary Dead, and Historical People, and will help you identify individuals for whom no vital information has been recorded in Wikidata (in Step 4). [PetScan](https://meta.wikimedia.org/wiki/PetScan/en) is a tool that allows you to extract lists of Wikipedia pages based on specific criteria or categories. All of the following datasets are stored in folder "petscan".
 
-#### Living People
-To gather data for contemporary living people, follow these steps:
+### Living People
+This method will help you efficiently collect a list of individuals who are contemporary and alive. To gather data for contemporary living people, follow these steps:
+#### English
+  - Language Field: en
+  - Category Field: Set the category field to "Living people".
+  - The snapshot of the result: https://petscan.wmcloud.org/?psid=34572731
+#### Italian
+  - Language Field: it
+  - Category Field: Set the category field to "Persone viventi".
+  - The snapshot of the result: https://petscan.wmcloud.org/?psid=34572788
 
-- Category Field: Set the category field to "Living people", which includes all Wikipedia articles about people who are still alive.
 - Depth: Set the depth to 0. This ensures the query will only return pages directly in the "Living people" category, without including any subcategories.
 - Combination: Select the Union combination option. This will combine all the pages that belong to the "Living people" category, ensuring you capture all relevant entries in this category.
 
-This method will help you efficiently collect a list of individuals who are contemporary and alive.
 
-#### Contemporary Dead and Historical People
+### Contemporary Dead and Historical People
 To classify Contemporary Dead and Historical People, use a heuristic approach based on the "People by millennium" category. This category tree organizes individuals based on their birth or death period, including subcategories like deaths or births by decades, centuries, and millennia.
 Follow these steps:
 - Category Field: Set the category field to "People by millennium". This category includes individuals grouped by their birth or death in different time periods, such as the 20th century or 21st century.
@@ -213,7 +221,7 @@ Follow these steps:
     - "dead_people_from_1900_to_1977" for the dataset of deceased people from 1900 to 1977.
 Using PetScan in this way, you can efficiently gather and filter data based on category membership and time periods, allowing you to categorize individuals as living, contemporary dead, or historical people.
 
-### Step 6: Extract Conversation logs of the Article for Deletion
+## Step 6: Extract Conversation logs of the Article for Deletion
 Parse the contents of each AfD discussion using [Wikipedia REST API](https://www.mediawiki.org/wiki/API:Query) to extract the title of the discussed entry, the rationale provided for nominating the entry, the final outcome of the deliberation, and the timestamp of the closing of the discussion.  Save the data in the file “raw/From_Begin_Afd_Conversation3.csv”.
 
 ```
