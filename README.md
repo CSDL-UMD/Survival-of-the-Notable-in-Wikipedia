@@ -4,7 +4,7 @@
     <img src="https://img.shields.io/badge/CCDS-Project%20template-328F97?logo=cookiecutter" />
 </a>
 
-Web communities depend on open forums for tasks like governance, information sharing, and decision-making, but these can yield biased outcomes. In Wikipedia's Articles for Deletion (AfD) discussions, biographies of women face faster deletion nominations, longer consensus times, and are more often redirected or merged into men’s biographies, highlighting gender asymmetries. Our study applies both survival analysis and a competing risk framework to examine the role of Articles for Deletion (AfD) in Wikipedia’s gender gap, offering insights for the governance of open knowledge platforms. Our paper describing this work is available on [arXiv](https://doi.org/10.48550/arXiv.2411.04340).
+Web communities depend on open forums for tasks like governance, information sharing, and decision-making, but these can yield biased outcomes. In Wikipedia's Articles for Deletion (AfD) discussions, biographies of women face faster deletion nominations, longer consensus times, and are more often redirected or merged into men’s biographies, highlighting gender asymmetries. Our study applies both survival analysis and a competing risk framework to examine the role of Articles for Deletion (AfD) in Wikipedia’s gender gap, offering insights for the governance of open knowledge platforms. Our paper describing this work is available on [Proceedings of the ACM on Human-Computer Interaction (CSCW)](https://dl.acm.org/doi/10.1145/3757663).
 
 ## Steps to follow
 1. Clone the project repository.
@@ -116,16 +116,27 @@ If you use this code or build upon this work, please cite the following paper:
 
 > Khandaker Tasnim Huq and Giovanni Luca Ciampaglia.  
 > *"Survival of the Notable: Gender Asymmetry in Wikipedia Collective Deliberations."*  
-> arXiv preprint arXiv:2411.04340 (2024).
-> [https://doi.org/10.48550/arXiv.2411.04340](https://doi.org/10.48550/arXiv.2411.04340)
+> [Proceedings of the ACM on Human-Computer Interaction (CSCW)](https://dl.acm.org/doi/10.1145/3757663)
 
 ### BibTeX
 ```bibtex
-@article{huq2024survival,
-  title={Survival of the Notable: Gender Asymmetry in Wikipedia Collective Deliberations},
-  author={Huq, Khandaker Tasnim and Ciampaglia, Giovanni Luca},
-  journal={arXiv preprint arXiv:2411.04340},
-  year={2024}
+@article{10.1145/3757663,
+author = {Huq, Khandaker Tasnim and Ciampaglia, Giovanni Luca},
+title = {Survival of the Notable: Gender Asymmetry in Wikipedia Collective Deliberations},
+year = {2025},
+issue_date = {November 2025},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+volume = {9},
+number = {7},
+url = {https://doi.org/10.1145/3757663},
+doi = {10.1145/3757663},
+abstract = {Communities on the web rely on open conversation forums for a number of tasks, including governance, information sharing, and decision making. However these forms of collective deliberation can often result in biased outcomes. A prime example are Articles for Deletion (AfD) discussions on Wikipedia, which allow editors to gauge the notability of existing articles, and that, as prior work has suggested, may play a role in perpetuating the notorious gender gap of Wikipedia. Prior attempts to address this question have been hampered by access to narrow observation windows, reliance on limited subsets of both biographies and editorial outcomes, and by potential confounding factors. To address these limitations, here we adopt a competing risk survival framework to fully situate biographical AfD discussions within the full editorial cycle of Wikipedia content. We find that biographies of women are nominated for deletion faster than those of men, despite editors taking longer to reach a consensus for deletion of women, even after controlling for the size of the discussion. Furthermore, we find that AfDs about historical figures show a strong tendency to result into the redirecting or merging of the biography under discussion into other encyclopedic entries, and that there is a striking gender asymmetry: biographies of women are redirected or merged into biographies of men more often than the other way round. Our study provides a more complete picture of the role of AfD in the gender gap of Wikipedia, with implications for the governance of the open knowledge infrastructure of the web.},
+journal = {Proc. ACM Hum.-Comput. Interact.},
+month = oct,
+articleno = {CSCW482},
+numpages = {29},
+keywords = {article for deletion, collective deliberation, competing risks analysis, gender gap, wikipedia}
 }
 
 --------
